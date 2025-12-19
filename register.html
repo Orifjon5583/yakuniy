@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ro'yxatdan O'tish</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .bg-primary { background-color: #2563eb; } 
+        .hover\:bg-primary-dark:hover { background-color: #1e40af; } 
+        .text-primary { color: #2563eb; }
+        .focus\:ring-primary:focus { --tw-ring-color: #2563eb; }
+        .focus\:border-primary:focus { border-color: #2563eb; }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-lg bg-white rounded-xl shadow-2xl p-8 space-y-6">
+
+        <div class="text-center">
+            <h1 class="text-4xl font-extrabold mb-2 text-primary">Test.Uz</h1>
+            <p class="text-xl font-semibold text-gray-700">Yangi foydalanuvchi sifatida ro'yxatdan o'tish</p>
+        </div>
+
+        <form id="registerForm" class="space-y-4">
+            
+            <div>
+                <label for="full_name" class="block text-sm font-medium text-gray-700 mb-1">Ism va Familiya</label>
+                <input type="text" id="full_name" name="full_name" required 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    placeholder="Masalan: Alisher Vohidov">
+            </div>
+
+            <div>
+                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Telefon Raqami</label>
+                <input type="tel" id="phone" name="phone" required 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    placeholder="Masalan: 99 123 45 67">
+            </div>
+
+            <div>
+                <label for="group_name" class="block text-sm font-medium text-gray-700 mb-1">Guruh Nomi (Faqat ruxsat berilgan guruhlar)</label>
+                <input type="text" id="group_name" name="group_name" required 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    placeholder="Masalan: MATH-A2">
+                <p class="text-xs text-gray-500 mt-1">Mavjud guruhlar: MATH-A1, MATH-A2, IT-B1, HISTORY-C1</p>
+            </div>
+
+            <div>
+                <label for="reg_password" class="block text-sm font-medium text-gray-700 mb-1">Parol Yaratish</label>
+                <input type="password" id="reg_password" name="reg_password" required minlength="6"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    placeholder="Kamida 6 ta belgi">
+            </div>
+
+            <p id="regErrorMessage" class="text-red-600 text-sm hidden"></p>
+
+            <button type="submit" class="w-full py-3 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-primary-dark transition duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 mt-5">
+                Ro'yxatdan O'tish
+            </button>
+            
+            <div class="text-center pt-4">
+                <a href="index.html" class="text-sm text-gray-600 hover:text-primary transition duration-150">Tizimga kirish sahifasiga qaytish</a>
+            </div>
+            
+        </form>
+    </div>
+
+    <!-- JavaScript - Ro'yxatdan o'tish mantiqi (Local Storage bilan) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('registerForm');
+            const regErrorMessage = document.getElementById('regErrorMessage');
+            
+            const allowedGroups = ['MATH-A1', 'MATH-A2', 'IT-B1', 'HISTORY-C1'];
+
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const fullName = document.getElementById('full_name').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const groupName = document.getElementById('group_name').value.toUpperCase().trim();
+                const password = document.getElementById('reg_password').value;
+
+                regErrorMessage.classList.add('hidden');
+                
+                const phoneRaw = phone.replace(/\s/g, ''); 
+                
+                const existingUsers = JSON.parse(localStorage.getItem('users')) || {};
+                if (existingUsers[phoneRaw]) {
+                    regErrorMessage.textContent = `Bu telefon raqami (${phone}) allaqachon ro'yxatdan o'tgan.`;
+                    regErrorMessage.classList.remove('hidden');
+                    return;
+                }
+
+                if (!allowedGroups.includes(groupName)) {
+                    regErrorMessage.textContent = `Kechirasiz, "${groupName}" nomli guruh ro'yxatda mavjud emas.`;
+                    regErrorMessage.classList.remove('hidden');
+                    return; 
+                }
+
+                if (password.length < 6) {
+                     regErrorMessage.textContent = `Parol kamida 6 ta belgidan iborat bo'lishi kerak.`;
+                     regErrorMessage.classList.remove('hidden');
+                     return;
+                }
+                
+                const newUser = {
+                    name: fullName,
+                    phone: phoneRaw,
+                    password: password,
+                    group: groupName,
+                    points: 0
+                };
+                
+                existingUsers[newUser.phone] = newUser;
+                localStorage.setItem('users', JSON.stringify(existingUsers));
+
+                alert(`Tabriklaymiz, ${fullName} (${groupName})! Ro'yxatdan o'tish muvaffaqiyatli. Endi tizimga kirishingiz mumkin.`);
+                window.location.href = 'index.html'; 
+            });
+            
+            // Telefon raqamini formatlash
+             document.getElementById('phone').addEventListener('input', function (e) {
+                let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,3})(\d{0,2})(\d{0,2})/);
+                e.target.value = !x[2] ? x[1] : x[1] + ' ' + x[2] + (x[3] ? ' ' + x[3] : '') + (x[4] ? ' ' + x[4] : '');
+            });
+        });
+    </script>
+
+</body>
+</html>

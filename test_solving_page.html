@@ -5,610 +5,489 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Yechish</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .bg-primary { background-color: #2563eb; } 
-        .text-primary { color: #2563eb; }
-        .answer-label:hover { cursor: pointer; background-color: #f3f4f6; }
-        .answer-label.selected { border-color: #2563eb; border-width: 2px; }
-        .answer-label.correct { background-color: #d1fae5; border-color: #10b981; } 
-        .answer-label.incorrect { background-color: #fee2e2; border-color: #ef4444; } 
+        .correct { background-color: #d1fae5; border-color: #10b981; color: #065f46; }
+        .incorrect { background-color: #fee2e2; border-color: #ef4444; color: #991b1b; }
+        .selected-nav { background-color: #2563eb; color: white; border-color: #2563eb; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
     </style>
 </head>
+<body class="bg-gray-50 h-screen flex flex-col font-sans">
 
-<body class="bg-gray-50">
-
-    <!-- Yuqori Panel -->
-    <header class="bg-white shadow sticky top-0 z-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-            <h1 class="text-xl font-bold text-gray-700">Test Yechish</h1>
-            
-            <div id="timerPanel" class="flex items-center space-x-3 bg-red-100 p-2 rounded-lg border border-red-300 hidden">
-                <i class="fas fa-clock text-red-500"></i>
-                <span id="timer" class="text-lg font-bold text-red-600">00:00</span>
-            </div>
-            
-            <button id="mobileNavToggle" class="lg:hidden bg-gray-200 text-gray-800 px-3 py-2 rounded-lg hover:bg-gray-300">
-                Savollar <i class="fas fa-list ml-1"></i>
-            </button>
-
-            <button onclick="endTest()" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition duration-200">
-                Testni Yakunlash
-            </button>
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center z-20 sticky top-0">
+        <h1 class="text-xl font-bold text-gray-800 tracking-tight" id="testTitle">Test Jarayoni</h1>
+        <div class="flex items-center space-x-4">
+            <div class="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold text-xl font-mono border border-red-100 shadow-sm" id="timer">00:00</div>
+            <button onclick="finishTest()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition shadow-md font-medium">Yakunlash</button>
         </div>
     </header>
 
-    <!-- PROGRESS BAR -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-        <div class="h-2 bg-gray-300 rounded-full overflow-hidden">
-            <div id="progressBar" class="h-full bg-green-500 transition-all duration-300 ease-out" style="width: 0%;"></div>
-        </div>
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Chap: Savol -->
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-gray-50">
+            <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-center mb-8">
+                    <span class="text-sm font-bold text-blue-600 uppercase tracking-wider bg-blue-50 px-3 py-1 rounded-full" id="questionCounter">SAVOL 1</span>
+                    <button id="markBtn" class="text-gray-400 hover:text-yellow-500 transition flex items-center gap-2 font-medium">
+                        <i class="far fa-bookmark text-lg"></i> Belgilash
+                    </button>
+                </div>
+                
+                <div class="mb-8">
+                    <p id="questionText" class="text-2xl font-semibold text-gray-900 leading-snug">Savol yuklanmoqda...</p>
+                </div>
+                
+                <div id="options" class="space-y-3">
+                    <!-- Variantlar -->
+                </div>
+
+                <div class="flex justify-between mt-10 pt-6 border-t border-gray-100">
+                    <button id="prevBtn" class="px-6 py-3 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50">Oldingi</button>
+                    <button id="nextBtn" class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium shadow-lg shadow-blue-200">Keyingi</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- O'ng: Navigatsiya -->
+        <aside class="w-80 bg-white border-l border-gray-200 p-6 overflow-y-auto hidden lg:block shadow-inner">
+            <h3 class="font-bold text-gray-800 mb-6 flex items-center gap-2 text-lg">
+                <i class="fas fa-th-large text-blue-500"></i> Savollar ro'yxati
+            </h3>
+            <div id="navGrid" class="grid grid-cols-5 gap-2">
+                <!-- Navigatsiya tugmalari -->
+            </div>
+        </aside>
     </div>
 
-
-    <!-- Asosiy Kontent -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
-        
-        <div class="lg:col-span-3 bg-white p-6 rounded-xl shadow-lg h-full">
-            
-            <h2 id="questionHeader" class="text-2xl font-semibold text-gray-800 mb-6">Savol 1 / 100</h2>
-            
-            <div id="questionContainer" class="text-xl leading-relaxed text-gray-700 mb-8 p-4 border-l-4 border-primary bg-blue-50">
-                Savol matni bu yerda joylashadi.
-            </div>
-
-            <div id="answersContainer" class="space-y-4">
-            </div>
-
-            <div class="flex justify-between mt-8 pt-4 border-t border-gray-200">
-                <button id="prevBtn" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-400 transition duration-150 disabled:opacity-50" disabled>
-                    <i class="fas fa-arrow-left mr-2"></i> Oldingi
-                </button>
-                <button id="markBtn" class="bg-yellow-400 text-white px-6 py-2 rounded-lg hover:bg-yellow-500 transition duration-150">
-                    Savolni Belgilash
-                </button>
-                <button id="nextBtn" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition duration-150 disabled:opacity-50 hidden">
-                    Keyingi <i class="fas fa-arrow-right ml-2"></i>
-                </button>
-            </div>
-            <div id="feedbackMessage" class="mt-4 text-center text-lg font-bold hidden p-3 rounded-lg"></div>
-
-        </div>
-
-        <!-- O'NG QISM: Savollar Navigatsiyasi (Desktop) -->
-        <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-lg sticky top-[5.5rem] h-fit hidden lg:block"> 
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Savollar ro'yxati (<span id="totalQuestionsDisplay"></span>)</h3>
-            <div id="questionNavigation" class="grid grid-cols-5 gap-3">
-            </div>
-        </div>
-    </div>
-    
-    <!-- Mobil Navigatsiya Modal/Overlay qismi -->
-    <div id="mobileNavigationOverlay" class="fixed inset-0 bg-black bg-opacity-75 z-20 hidden lg:hidden">
-        <div class="bg-white w-full h-full p-6 overflow-y-auto">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-                <h3 class="text-xl font-bold">Savollar Ro'yxati</h3>
-                <button onclick="toggleMobileNav(false)" class="text-gray-500 hover:text-gray-800 text-2xl">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div id="mobileQuestionNavigation" class="grid grid-cols-5 gap-3">
-            </div>
-        </div>
-    </div>
-
-    <!-- JavaScript - Mantiq -->
     <script>
-        // --- TO'LIQ SAVOLLAR BAZASI (Avtomatik Topilgan Javoblar Bilan) ---
+        // ---------------------------------------------------------
+        // BARCHA 236 TA SAVOL VA TO'G'RI JAVOBLAR (AI tomonidan aniqlandi)
+        // c: 0=A, 1=B, 2=C, 3=D
+        // ---------------------------------------------------------
         const ALL_QUESTIONS = [
-            { question: "Signal nima?", options: ["A) Faqat tovush to‘lqinlari", "B) Axborotni tashuvchi fizik kattalik", "C) Elektr energiyasining turi", "D) Faqat tasvir shaklida ifodalanadigan ma’lumot"], correct: 'B' },
-            { question: "Deterministik signal qanday signal?", options: ["A) Oldindan aniq ifodalanadigan signal", "B) Tasodifiy xarakterga ega bo‘lgan signal", "C) Faqat analog signal", "D) Faqat raqamli signal"], correct: 'A' },
-            { question: "Tasodifiy signalning asosiy belgisi?", options: ["A) Har doim takrorlanadi", "B) Oldindan to‘liq aniqlab bo‘lmaydi", "C) Sinus shaklida bo‘ladi", "D) Spektri yo‘q"], correct: 'B' },
-            { question: "Analog signal qanday ifodalanadi?", options: ["A) Diskret qiymatlar bilan", "B) Cheksiz sonli qiymatlar bilan", "C) Faqat ikkilik sonlar bilan", "D) Matnli ko‘rinishda"], correct: 'B' },
-            { question: "Quyidagilardan qaysi biri signal turiga kirmaydi?", options: ["A) Audio signal", "B) Video signal", "C) Radiatsiya", "D) Matn hujjati"], correct: 'C' },
-            { question: "Tasvir signali qanday hosil bo‘ladi?", options: ["A) Matnni kodlash orqali", "B) Yorug‘likning fazoviy tarqalishidan", "C) Elektr tokining chastotasidan", "D) Magnit maydonidan"], correct: 'B' },
-            { question: "Signalning asosiy parametrlari qaysilar?", options: ["A) Amplituda, chastota, faza", "B) Rang, shakl, og‘irlik", "C) Sifat, tezlik, hajm", "D) Masshtab, koordinata, rang"], correct: 'A' },
-            { question: "Analog signalning asosiy xususiyati nima?", options: ["A) Diskret qiymatlarga ega bo‘lishi", "B) Uzluksiz bo‘lishi", "C) Shovqinga sezgir emasligi", "D) Doimiy chastotaga ega bo‘lishi"], correct: 'B' },
-            { question: "Raqamli signal qanday qiymatlardan iborat bo‘ladi?", options: ["A) Cheksiz ko‘p qiymatlardan", "B) Diskret va chekli qiymatlardan", "C) Analog kattaliklardan", "D) Vaqtning uzluksiz funksiyalaridan"], correct: 'B' },
-            { question: "Signallarni qayta ishlashning asosiy maqsadi nima?", options: ["A) Shovqinni kuchaytirish", "B) Foydali ma’lumotlarni ajratib olish", "C) Ma’lumotni buzish", "D) Signallarni kamaytirish"], correct: 'B' },
-            { question: "Inson audiovizual tizimi deganda nima tushuniladi?", options: ["A) Faqat ko‘rish qobiliyati", "B) Ko‘rish va eshitish tizimlari birgaligi", "C) Faqat nutq apparati", "D) Kompyuter grafikasi"], correct: 'B' },
-            { question: "Audiovizual tizim orqali inson qanday ma’lumot oladi?", options: ["A) Faqat matn ko‘rinishida", "B) Tasvir va ovoz orqali", "C) Faqat raqamli signal orqali", "D) Faqat elektromagnit to‘lqin orqali"], correct: 'B' },
-            { question: "Nutq signallariga ishlov berish texnologiyalariga misol:", options: ["A) Ovozdan matn yaratish, nutqni tanish", "B) Faqat signalni kuchaytirish", "C) Raqamli tasvirni o‘zgartirish", "D) Data siqish"], correct: 'A' },
-            { question: "Nutq signaliga ishlov berishda asosiy maqsad:", options: ["A) Ovoz sifatini pasaytirish", "B) Nutqni tahlil qilish va tanib olish", "C) Ovozning hajmini kattalashtirish", "D) Ovoz signalini faqat yozib olish"], correct: 'B' },
-            { question: "Nutq signallarini tahlil qilishda eng ko‘p ishlatiladigan usul?", options: ["A) MFCC (Mel-chastota kepstral koeffitsiyentlari)", "B) Fourier qatorlari", "C) Tasodifiy signal generatsiyasi", "D) Raqamli siqish"], correct: 'A' },
-            { question: "Matlab paketida signalni ekranda tasvirlash uchun qaysi buyruqdan foydalaniladi?", options: ["A) Plot()", "B) Wavread()", "C) Clc", "D) Pwelch()"], correct: 'A' },
-            // Savol 15 (Fizik jarayon)
-            { question: "Signal deb ………………………………… aytiladi?", options: ["A) biror bir fizik jarayonning bir yoki nechta parametlarini xabarga mos ravishda o‘zgarishiga", "B) inson haqida ma’lumot beruvchi kundalik", "C) bu xar xil fizik jarayonlar, jismlar, tarixiy va kundalik xodisalar to‘g‘risidagi ma'lumotnomaga", "D) uzatish uchun uni ma'lum bir shaklga keltirish lozim tekst, jadval, grafik, rasm, xarakatdagi tasvir, va boshqalarga."], correct: 'A' },
-            { question: "EEG (Elektroensefalogramma) qaysi biosignalni o‘lchash uchun ishlatiladi?", options: ["A) Yurak urishi", "B) Miyaning elektr faolligi", "C) Mushak harakati", "D) Nafas olish tezligi"], correct: 'B' },
-            { question: "EKG (Elektrokardiogramma) asosan nima uchun qo‘llaniladi?", options: ["A) Miya faoliyatini aniqlash", "B) Yurak faoliyatini qayd etish", "C) Nutqni qayd qilish", "D) Tasvir olish"], correct: 'B' },
-            { question: "Ko‘rish tizimida asosiy sezgir element nima?", options: ["A) Qon tomirlari", "B) To‘r pardadagi fotoretseptorlar", "C) Mushak tolalari", "D) Asab tugunlari"], correct: 'B' },
-            { question: "Furye o‘zgartirishning asosiy maqsadi?", options: ["A) Signalni vaqt sohasidan chastota sohasiga o‘tkazish", "B) Signalni kuchaytirish", "C) Signalni kodlash", "D) Signalni tasodifiylashtirish"], correct: 'A' },
-            { question: "Furye o‘zgartirishning teskari turi nima uchun kerak?", options: ["A) Chastotadan vaqt sohasiga qaytarish uchun", "B) Signalni shovqinlashtirish uchun", "C) Signalni siqish uchun", "D) Signalni kodlash uchun"], correct: 'A' },
-            { question: "Spektr nima?", options: ["A) Signalning chastota tarkibi", "B) Signalning amplitudasi", "C) Signalning uzunligi", "D) Signalning fazasi"], correct: 'A' },
-            { question: "Quvvat spektral tahlili nima?", options: ["A) Signalning energiyasi va quvvatini chastotalar bo‘yicha taqsimlash", "B) Signalni kuchaytirish usuli", "C) Signalni kodlash texnikasi", "D) Signalni uzatish metodi"], correct: 'A' },
-            { question: "Energiya spektral zichligi nima?", options: ["A) Signal energiyasining chastotalarga taqsimlanishi", "B) Signal amplitudasining qiymati", "C) Signalning davriyligi", "D) Signalning fazasi"], correct: 'A' },
-            { question: "Furye tahlili asosida qanday ko‘rsatkich olinadi?", options: ["A) Signal chastotasi, fazasi, amplitudasi", "B) Signal hajmi", "C) Signal davri", "D) Signal uzunligi"], correct: 'A' },
-            { question: "Fourier tahlilida signal qanday ko‘rinishda ifodalanadi?", options: ["A) Faqat vaqt domenida", "B) Chastota domenida spektr ko‘rinishida", "C) Amplituda domenida", "D) Kompleks faza ko‘rinishida"], correct: 'B' },
-            // Savol 28 (Formula bo'lgani uchun o'tkazib yuborildi)
-            { question: "Uzluksiz Furye o‘zgartirish qaysi signallar uchun qo‘llaniladi?", options: ["A) Diskret signallar", "B) Analog signallar", "C) Buzilgan signallar", "D) Shovqinli signallar"], correct: 'B' },
-            { question: "Spektral tahlil natijasida signal haqida nima bilib olish mumkin?", options: ["A) Signal chastotalari va ularning quvvati", "B) Signalning uzunligi", "C) Signalning rangi", "D) Signalning nomi"], correct: 'A' },
-            { question: "Quvvat spektral tahlili yordamida signalning qaysi jihati o‘rganiladi?", options: ["A) Signal energiyasi", "B) Signal balandligi", "C) Signal yo‘nalishi", "D) Signal hajmi"], correct: 'A' },
-            { question: "Davriy signal qanday signal?", options: ["A) Har doim tasodifiy bo‘ladi", "B) Ma’lum vaqt oralig‘ida takrorlanadi", "C) Faqat sinus shaklida bo‘ladi", "D) Davomsiz bo‘ladi"], correct: 'B' },
-            { question: "Davriy bo‘lmagan signalning asosiy xususiyati?", options: ["A) Takrorlanadi", "B) Takrorlanmaydi", "C) Faqat sinus shaklida bo‘ladi", "D) Analog shaklda bo‘ladi"], correct: 'B' },
-            { question: "DCT (Diskret Kosinus Transformatsiyasi) ko‘proq qaysi sohada ishlatiladi?", options: ["A) Matematika nazariyasida", "B) Tasvir va video siqishda", "C) Elektromagnit to‘lqinlarni uzatishda", "D) Radiotexnika"], correct: 'B' },
-            { question: "Davriy signalni ifodalash uchun odatda qaysi usul ishlatiladi?", options: ["A) Furye qatori", "B) Integrallar yig‘indisi", "C) Matnli ifoda", "D) Grafik funksiyalar"], correct: 'A' },
-            { question: "Davriy bo‘lmagan signalni ifodalash uchun qaysi usul ishlatiladi?", options: ["A) Furye integrali", "B) DCT", "C) MFCC", "D) Shovqinli model"], correct: 'A' },
-            { question: "DCT algoritmi qaysi standartda asosiy?", options: ["A) JPEG siqish", "B) MPEG kodlash", "C) DOC fayllar", "D) PDF fayllar"], correct: 'A' },
-            { question: "Quvvat spektridan nima aniqlanadi?", options: ["A) Signalning kuchi qaysi chastotalarda ko‘proq ekanligi", "B) Signal fazasi", "C) Signal hajmi", "D) Signal uzunligi"], correct: 'A' },
-            { question: "DCT va DFT o‘rtasidagi asosiy farq?", options: ["A) DCT faqat kosinus komponentlardan iborat", "B) DFT faqat sinus komponentlardan iborat", "C) DCT raqamli signalga ishlatilmaydi", "D) Hech qanday farqi yo‘q"], correct: 'A' },
-            { question: "Davriy signal qanday ta’riflanadi?", options: ["A) Qaytarilmaydigan signal", "B) Ma’lum vaqt oralig‘idan keyin takrorlanuvchi signal", "C) Faqat vaqtga bog‘liq signal", "D) Shovqinsiz signal"], correct: 'B' },
-            { question: "Bu qaysi formula?", options: ["A) Diskret kosinus transformatsiyasi", "B) Furye qatorlari", "C) Laplas o‘zgartirish", "D) Z-o‘zgartirish"], correct: 'A' }, // Agar formula DCT bo'lsa
-            { question: "Davriy signal uchun asosiy parametr:", options: ["A) Amplituda", "B) Davr (T)", "C) Fazasi", "D) Shovqini"], correct: 'B' },
-            // Savol 44, 45, 46, 47 (Formulalar sababli o'tkazib yuborildi)
-            { question: "Konvolyutsiya (svyortka) nima uchun ishlatiladi?", options: ["A) Signallarni bir-biriga aralashtirish", "B) Signalni tizim orqali o‘tkazishni ifodalash", "C) Signalni tasodifiylashtirish", "D) Signalni kodlash"], correct: 'B' },
-            { question: "Svyortka amali odatda qayerda qo‘llaniladi?", options: ["A) Filtrlashda", "B) Nutqni buzishda", "C) Signalni kodlashda", "D) Matnni tahrirlashda"], correct: 'A' },
-            { question: "2D svyortka qaysi sohada qo‘llaniladi?", options: ["A) Tasvirlarga ishlov berishda", "B) Ovoz kuchaytirishda", "C) Matn tahlilida", "D) Chizmalar yaratishda"], correct: 'A' },
-            { question: "Avtokorrelyatsiya nima?", options: ["A) Signalni o‘zi bilan solishtirish", "B) Ikki signalni taqqoslash", "C) Signalni filtrlash", "D) Signalni siqish"], correct: 'A' },
-            { question: "Korrelyatsiya qanday aniqlanadi?", options: ["A) Signal va uning kechiktirilgan nusxasi o‘rtasidagi o‘xshashlik", "B) Signalning amplitudasi", "C) Signalning chastotasi", "D) Signalning uzunligi"], correct: 'A' },
-            { question: "Avtokorrelyatsiya nima?", options: ["A) Signalni boshqa signal bilan solishtirish", "B) Signalni o‘zining kechiktirilgan nusxasi bilan solishtirish", "C) Signalni nolga tenglashtirish", "D) Signalni filtrlash"], correct: 'B' },
-            { question: "Korrelyatsiya signallarni qaysi xususiyatini o‘lchaydi?", options: ["A) O‘xshashligini", "B) Davrini", "C) Fazasini", "D) Rangini"], correct: 'A' },
-            { question: "2D korrelyatsiya asosan qaysi maqsadda qo‘llaniladi?", options: ["A) Tasvirlarni taqqoslash", "B) Ovoz kuchaytirish", "C) Video uzatish", "D) Chastota aniqlash"], correct: 'A' },
-            { question: "Kross-korrelyatsiya qaysi vazifani bajaradi?", options: ["A) Ikki turli signal o‘rtasidagi o‘xshashlikni topish", "B) Signalni siqish", "C) Signalni buzish", "D) Signalni kuchaytirish"], correct: 'A' },
-            { question: "Konvolyutsiya va korrelyatsiya o‘rtasidagi asosiy farq?", options: ["A) Bitta signal teskari aylantiriladi", "B) Bitta signal nol bo‘ladi", "C) Bitta signal kuchayadi", "D) Bitta signal qisqaradi"], correct: 'A' },
-            // Savol 59, 60 (Formulalar sababli o'tkazib yuborildi)
-            { question: "Analog filtrlarning asosiy turlari?", options: ["A) Past chastotali, yuqori chastotali, polosali, teskari polosali", "B) Diskret, raqamli, kodlangan", "C) Matn, tasvir, video", "D) Oddiy va murakkab"], correct: 'A' },
-            { question: "Signalni kuchaytirish qaysi filtr vazifasi emas?", options: ["A) Past chastotali", "B) Yuqori chastotali", "C) Polosali", "D) Hech biri"], correct: 'D' }, // Filtrlar kuchaytirmaydi, chastotalarni o'tkazadi
-            { question: "Filtrlashning asosiy maqsadi?", options: ["A) Keraksiz komponentlarni olib tashlash", "B) Signalni shovqinlashtirish", "C) Signalni buzish", "D) Signalni qisqartirish"], correct: 'A' },
-            { question: "Analog filtrlarning asosiy vazifasi:", options: ["A) Signalni kuchaytirish", "B) Keraksiz chastotalarni yo‘qotish", "C) Signalni buzish", "D) Signalni siqish"], correct: 'B' },
-            { question: "Past chastotali filtrning vazifasi:", options: ["A) Yuqori chastotani o‘tkazadi", "B) Past chastotani o‘tkazadi", "C) Hech narsani o‘tkazmaydi", "D) Shovqinni kuchaytiradi"], correct: 'B' },
-            { question: "Yuqori chastotali filtrning vazifasi:", options: ["A) Past chastotani o‘tkazish", "B) Yuqori chastotani o‘tkazish", "C) O‘rta chastotani kuchaytirish", "D) Hech narsani ajratmaslik"], correct: 'B' },
-            { question: "Polosali filtr (band-pass) vazifasi:", options: ["A) Faqat biror chastotani o‘tkazish", "B) Belgilangan chastota diapazonini o‘tkazish", "C) Faqat past chastotani o‘tkazish", "D) Faqat yuqori chastotani o‘tkazish"], correct: 'B' },
-            { question: "Teskari polosali filtr (band-stop) vazifasi:", options: ["A) Belgilangan diapazon chastotalarni to‘sish", "B) Hamma chastotalarni o‘tkazish", "C) Yuqori chastotani kuchaytirish", "D) Past chastotani kuchaytirish"], correct: 'A' },
-            { question: "Analog filtrlar qanday elementlardan tashkil topadi?", options: ["A) R2-D2 va tranzistor", "B) Rezistor, kondensator, induktor", "C) Kompyuter chipi", "D) Signal generatori"], correct: 'B' },
-            { question: "Past chastotali filtrning boshqa nomi:", options: ["A) High-pass", "B) Low-pass", "C) Band-stop", "D) Band-pass"], correct: 'B' },
-            { question: "Signalni segmentlashning asosiy maqsadi nima?", options: ["A) Signalni filtrlash", "B) Signalni qismlarga ajratish", "C) Signalni siqish", "D) Signalni tiklash"], correct: 'B' },
-            { question: "Freymlash jarayonida signal qanday bo‘linadi?", options: ["A) Chegaralarga qarab", "B) Kichik vaqt oraliqlarga qarab", "C) Chastotalarga qarab", "D) Amplitudaga qarab"], correct: 'B' },
-            { question: "Segmentlash jarayoni qaysi tizimlarda qo‘llaniladi?", options: ["A) Nutqni qayta ishlashda", "B) Tasvirni qayta ishlashda", "C) Video tahlilda", "D) Barchasida"], correct: 'D' },
-            { question: "Freymlash natijasida nima hosil bo‘ladi?", options: ["A) Signal siqiladi", "B) Signal qismlarga bo‘linadi", "C) Signal chastotasi kamayadi", "D) Signal tiklanadi"], correct: 'B' },
-            { question: "Freymlash jarayonida signal odatda qanday bo‘laklarga ajratiladi?", options: ["A) Cheksiz uzun bo‘laklar", "B) Juda katta bloklar", "C) Bir xil uzunlikdagi qisqa intervallar", "D) Faqat bitta segment"], correct: 'C' },
-            { question: "Segment uzunligi tanlashda asosiy omil nima?", options: ["A) Signal chastotasi", "B) Kompyuter xotirasi", "C) Signal amplitudasi", "D) Signal turi"], correct: 'A' },
-            { question: "Freymlash jarayonida ustma-ust (overlap) qo‘llanishining sababi:", options: ["A) Signal uzunligini kamaytirish", "B) Informatsiyani yo‘qotmaslik", "C) Signalni buzish", "D) Chastotani kamaytirish"], correct: 'B' },
-            { question: "Segmentlash qaysi sohada keng qo‘llanadi?", options: ["A) Elektromagnit to‘lqinlar", "B) Nutqni qayta ishlash", "C) Fotonik tizimlar", "D) Radiatsiya nazorati"], correct: 'B' },
-            { question: "Freymlash uzunligi odatda qanday birlikda beriladi?", options: ["A) Hertz", "B) Millisekund", "C) Volt", "D) Bit"], correct: 'B' },
-            { question: "Segmentlangan signal ustida qanday amallar bajariladi?", options: ["A) Faqat yig‘indi olish", "B) Spektral tahlil", "C) Faqat amplituda hisoblash", "D) Hech qanday amallar emas"], correct: 'B' },
-            { question: "Namunalash nima?", options: ["A) Signal amplitudasini kamaytirish jarayoni", "B) Signalni diskret vaqt nuqtalarida o‘lchash jarayoni", "C) Signal chastotasini oshirish jarayoni", "D) Signalni filtrlash jarayoni"], correct: 'B' },
-            { question: "Nyquist teoremasiga ko‘ra, signalni qayta tiklash uchun namunalash chastotasi qanday bo‘lishi kerak?", options: ["A) Signal chastotasidan kichik", "B) Signal chastotasiga teng", "C) Signal chastotasidan ikki baravar katta", "D) Cheksiz katta"], correct: 'C' },
-            { question: "Aliasing hodisasi nima?", options: ["A) Signalning kuchayishi", "B) Signalning shovqin bilan aralashishi", "C) Past namunalash chastotasi tufayli yuqori chastotaning noto‘g‘ri ko‘rinishi", "D) Signal amplitudasining kamayishi"], correct: 'C' },
-            { question: "Agar signal chastotasi 3 kHz bo‘lsa, uni to‘liq tiklash uchun minimal namunalash chastotasi nechaga teng bo‘lishi kerak?", options: ["A) 1.5 kHz", "B) 3 kHz", "C) 6 kHz", "D) 12 kHz"], correct: 'C' },
-            { question: "Video signallarni namunalash chastotasi odatda nechaga teng?", options: ["A) 20 Hz", "B) 25 Hz", "C) 44.1 kHz", "D) 13.5 MHz"], correct: 'D' },
-            { question: "CD formatidagi audio fayllar qanday chastotada namunalash orqali yaratiladi?", options: ["A) 8 kHz", "B) 22.05 kHz", "C) 44.1 kHz", "D) 48 Hz"], correct: 'C' },
-            { question: "Nyquist chastotasi nima?", options: ["A) Signalning maksimal qiymati", "B) Signal chastotasining yarmi", "C) Namunalash chastotasining yarmi", "D) Signal amplitudasi"], correct: 'C' },
-            { question: "Diskretlash jarayoni qaysi bosqichlardan iborat?", options: ["A) Segmentlash va freymlash", "B) Namunalash va kvantlash", "C) Filtrlash va yig‘ish", "D) Kuchaytirish va o‘chirish"], correct: 'B' },
-            { question: "Kvantlash nima?", options: ["A) Signalni chastotaga ajratish", "B) Signal amplitudasini raqamli qiymatlarga yaqinlashtirish", "C) Signalni filtrdan o‘tkazish", "D) Signalni qismlarga ajratish"], correct: 'B' },
-            { question: "Signalni noto‘g‘ri diskretlash natijasida nima yuz beradi?", options: ["A) Kuchayish", "B) Aliasing", "C) Spektral kengayish", "D) Filtrlash"], correct: 'B' },
-            { question: "Diskret signal nima?", options: ["A) Faqat uzluksiz vaqt bo‘yicha aniqlangan signal", "B) Cheksiz o‘lchovli signal", "C) Ma’lum vaqt nuqtalarida qiymatlari aniqlangan signal", "D) Analog signal"], correct: 'C' },
-            { question: "Diskret signallarning asosiy afzalligi nimada?", options: ["A) Analog signaldan farqli ravishda shovqinga chidamli", "B) Chastotasi yuqori bo‘lishida", "C) Uzluksiz bo‘lishida", "D) Amplitudasi katta bo‘lishida"], correct: 'A' },
-            { question: "Z-o‘zgartirish nima uchun ishlatiladi?", options: ["A) Signal amplitudasini o‘zgartirish uchun", "B) Signalni vaqt sohasidan Z-sohasiga o‘tkazish uchun", "C) Signal chastotasini oshirish uchun", "D) Signalni kuchaytirish uchun"], correct: 'B' },
-            { question: "Diskret signallarda vaqt siljishi Z-o‘zgartirishda qanday aks etadi?", options: ["A) Z ning darajasi o‘zgaradi", "B) Signal amplitudasi kamayadi", "C) Signal chastotasi ortadi", "D) Signal fazasi nolga teng bo‘ladi"], correct: 'A' },
-            { question: "Z-o‘zgartirishdan foydalanishning asosiy sababi nima?", options: ["A) Analog signallarni kodlash", "B) Tizimlarni tahlil qilish va barqarorlikni tekshirish", "C) Ovoz signallarini eshittirish", "D) Chastotani oshirish"], correct: 'B' },
-            { question: "Diskret signalning energiyasi qanday hisoblanadi?", options: ["A) Integral orqali", "B) Kvadrat yig‘indilar orqali", "C) Maksimal qiymat orqali", "D) Amplituda orqali"], correct: 'B' },
-            { question: "Z-o‘zgartirishni amaliyotda hisoblash uchun odatda qanday dasturlardan foydalaniladi?", options: ["A) Photoshop", "B) MATLAB", "C) Word", "D) Excel"], correct: 'B' },
-            { question: "Z-o‘zgartirish asosan qaysi sohaga yaqin?", options: ["A) Laplas o‘zgartirishga", "B) Fourier o‘zgartirishga", "C) Konvolyutsiyaga", "D) Kvantlashga"], correct: 'A' },
-            { question: "DFT va FFT o‘rtasidagi farq nima?", options: ["A) DFT tez, FFT sekin", "B) DFT nazariy, FFT tez algoritmik hisoblash", "C) Ikkalasi bir xil", "D) FFT faqat analog signallar uchun"], correct: 'B' },
-            { question: "FFT algoritmi qaysi sohada eng ko‘p qo‘llaniladi?", options: ["A) Audio va video siqish", "B) Matn yozish", "C) Grafik chizish", "D) Hisob-kitob"], correct: 'A' },
-            { question: "FFT (Fast Fourier Transform) DFTdan qanday farq qiladi?", options: ["A) Natijasi boshqa", "B) Hisoblash tezroq", "C) Signalni o‘zgartiradi", "D) Signalni kuchaytiradi"], correct: 'B' },
-            { question: "Tasodifiy signal nima?", options: ["A) Oldindan to‘liq aniqlangan signal", "B) Oldindan aniqlanmagan, statistik tavsifli signal", "C) Hech qanday ma’lumot bermaydigan signal", "D) Doimiy chastotali signal"], correct: 'B' },
-            { question: "Moslashuvchan filtr nima qiladi?", options: ["A) Faqat signalni kuchaytiradi", "B) Signal sharoitiga qarab o‘z parametrlarini o‘zgartiradi", "C) Signalni buzadi", "D) Signal amplitudasini kamaytiradi"], correct: 'B' },
-            { question: "Median filtr asosan qaysi vazifada ishlatiladi?", options: ["A) Shovqinni kamaytirishda", "B) Chastotani oshirishda", "C) Kuchaytirishda", "D) Signalni kodlashda"], correct: 'A' },
-            { question: "Adaptiv filtrlarning asosiy algoritmlaridan biri qaysi?", options: ["A) LMS (Least Mean Squares)", "B) FFT", "C) JPEG", "D) DCT"], correct: 'A' },
-            { question: "Tasodifiy signallar qanday modellashtiriladi?", options: ["A) Matematik ehtimollik taqsimotlari orqali", "B) Kvadrat yig‘indilar orqali", "C) O‘zgarmas funksiyalar orqali", "D) Nol signal orqali"], correct: 'A' },
-            { question: "Tasodifiy signallarda eng ko‘p ishlatiladigan model qaysi?", options: ["A) Gaussian (Normal) taqsimoti", "B) Sinusoidal taqsimot", "C) Logarifmik taqsimot", "D) Chiziqli taqsimot"], correct: 'A' },
-            { question: "Median filtr asosan qanday shovqinni bartaraf etishda samarali?", options: ["A) Oq shovqin", "B) Impuls shovqin", "C) Fazoviy shovqin", "D) Analog shovqin"], correct: 'B' },
-            { question: "Moslashuvchan filtr qaysi algoritmlar asosida ishlaydi?", options: ["A) LMS, RLS", "B) FFT, DFT", "C) JPEG, MPEG", "D) Sobel, Canny"], correct: 'A' },
-            { question: "LMS algoritmi nimani anglatadi?", options: ["A) Least Mean Square", "B) Linear Multiple Signal", "C) Long Median System", "D) Low Memory Signal"], correct: 'A' },
-            { question: "RLS algoritmi nimani anglatadi?", options: ["A) Random Linear System", "B) Recursive Least Square", "C) Real Level Signal", "D) Ratio Linear Scale"], correct: 'B' },
-            { question: "Ikki o‘lchovli Furye o‘zgartirish asosan qayerda qo‘llaniladi?", options: ["A) Audio signallarda", "B) Tasvirlarni tahlil qilishda", "C) Matnlarda", "D) Grafiklarda"], correct: 'B' },
-            { question: "2D Furye o‘zgartirish natijasida nima olinadi?", options: ["A) Chastotaviy spektr", "B) Amplituda grafigi", "C) Oddiy matn", "D) Kvadrat yig‘indi"], correct: 'A' },
-            { question: "2D Furye o‘zgartirishni hisoblash uchun qaysi dasturiy vosita eng ko‘p ishlatiladi?", options: ["A) MATLAB", "B) Word", "C) Photoshop", "D) AutoCAD"], correct: 'A' },
-            { question: "2D Furye o‘zgartirish tasvirda qanday vazifani bajaradi?", options: ["A) Faqat ranglarni ko‘rsatadi", "B) Tasvirning chastotaviy spektrini beradi", "C) Tasvirni kattalashtiradi", "D) Tasvirni aylantiradi"], correct: 'B' },
-            { question: "Veyvlet so‘zi qaysi ma’noni bildiradi?", options: ["A) “Katta to‘lqin”", "B) “Kichik to‘lqin”", "C) “Spektr”", "D) “Signal”"], correct: 'B' },
-            { question: "Ikki o‘lchamli Furye o‘zgartirish qaysi signallarga qo‘llanadi?", options: ["A) Faqat audio", "B) Faqat matn", "C) Tasvir va video", "D) Analog signal"], correct: 'C' },
-            { question: "Veyvlet o‘zgartirish qaysi muammoni hal qiladi?", options: ["A) Aliasing", "B) Chastotani tahlil qilishda vaqt aniqligi", "C) Kvantlash xatosi", "D) Signalni kuchaytirish"], correct: 'B' },
-            { question: "2D Furye o‘zgartirish orqali tasvir qanday filtrlanadi?", options: ["A) Past va yuqori chastotali komponentlarni kesib", "B) Signalni kuchaytirib", "C) Signalni segmentlab", "D) Kvantlash orqali"], correct: 'A' },
-            { question: "Veyvlet kodlashning afzalligi:", options: ["A) Tasvirni samarali siqish imkonini beradi", "B) Signalni kuchaytiradi", "C) Signal amplitudasini oshiradi", "D) Signalni diskretlashtiradi"], correct: 'A' },
-            { question: "Furye va Veyvlet o‘zgartirishlarining asosiy farqi:", options: ["A) Furye – faqat chastota, Veyvlet – vaqt+chastota", "B) Ikkalasi ham bir xil natija beradi", "C) Furye – kvantlash, Veyvlet – kuchaytirish", "D) Furye – segmentlash, Veyvlet – filtrlash"], correct: 'A' },
-            { question: "MPEG audio kodeklari asosan qaysi prinsipga asoslanadi?", options: ["A) Kvantlash", "B) Transformatsion kodlash", "C) Psixoakustik model", "D) Entropik kodlash"], correct: 'C' },
-            { question: "MPEG-1 Layer III keng tarqalgan nomi nima?", options: ["A) MP2", "B) MP3", "C) AAC", "D) WAV"], correct: 'B' },
-            { question: "MPEG kodlashning asosiy maqsadi nima?", options: ["A) Signalni kattalashtirish", "B) Ma’lumotni siqish va sifatni saqlash", "C) Signalni filtrdan o‘tkazish", "D) Diskretlash"], correct: 'B' },
-            { question: "MPEG konteyner formati misoli qaysi?", options: ["A) .mp4", "B) .bmp", "C) .jpg", "D) .gif"], correct: 'A' },
-            { question: "MPEG-4 standarti qaysi imkoniyatni beradi?", options: ["A) Faqat audio siqish", "B) Faqat video siqish", "C) Audio va videoni birgalikda siqish", "D) Faqat rasmlarni siqish"], correct: 'C' },
-            { question: "Kodek atamasi nimani anglatadi?", options: ["A) Kodlash va dekodlash algoritmi", "B) Signal chastotasi", "C) Format hajmi", "D) Filtrlash jarayoni"], correct: 'A' },
-            { question: "Entropiya kodlash usullaridan biri:", options: ["A) Fourier transformatsiya", "B) Huffman kodlash", "C) Konvolyutsiya", "D) Z-transformatsiya"], correct: 'B' },
-            { question: "MPEG kodlash jarayonida “frame” atamasi nimani bildiradi?", options: ["A) Diskret nuqta", "B) Tasvirning bitta qatori", "C) Bir qator blok signali", "D) Ma’lumotlar bo‘lagi (kadr)"], correct: 'D' },
-            { question: "Tasvir formatlaridan yo‘qotishsiz (lossless) siqishga misol:", options: ["A) JPEG", "B) PNG", "C) MPEG", "D) MP3"], correct: 'B' },
-            { question: "MPEG siqishda qo‘llaniladigan asosiy transformatsiya:", options: ["A) DFT", "B) DCT (diskret kosinus)", "C) Z-transformatsiya", "D) Laplas transformatsiyasi"], correct: 'B' },
-            { question: "Konteyner formati vazifasi nima?", options: ["A) Faqat video siqish", "B) Audio va videoni bir faylda birlashtirish", "C) Signal kuchaytirish", "D) Faqat rasmni saqlash"], correct: 'B' },
-            { question: "MPEG-2 asosan qayerda qo‘llaniladi?", options: ["A) Telefon suhbatlarida", "B) DVD va televizion translyatsiyada", "C) SMS xabarlarida", "D) IoT qurilmalarda"], correct: 'B' },
-            { question: "MP4 fayl kengaytmasi qaysi standartga tegishli?", options: ["A) MPEG-1", "B) MPEG-2", "C) MPEG-4", "D) JPEG"], correct: 'C' },
-            { question: "JPEG siqishning asosiy transformatsiyasi qaysi?", options: ["A) Fourier transformatsiya", "B) DCT (diskret kosinus)", "C) Laplas transformatsiyasi", "D) Z-transformatsiya"], correct: 'B' },
-            { question: "JPEG formati qanday siqish turiga kiradi?", options: ["A) Lossless (yo‘qotishsiz)", "B) Lossy (yo‘qotishli)", "C) Hech biri", "D) Faqat audio siqish"], correct: 'B' },
-            { question: "Huffman kodlash qanday ishlaydi?", options: ["A) Chastota past bo‘lsa, kod uzun bo‘ladi", "B) Chastota yuqori bo‘lsa, kod qisqa bo‘ladi", "C) Har doim bir xil uzunlikda kodlar beradi", "D) Tasodifiy kodlash"], correct: 'B' },
-            { question: "JPEG fayllarining kengaytmasi:", options: ["A) .jpg / .jpeg", "B) .png", "C) .gif", "D) .bmp"], correct: 'A' },
-            { question: "JPEG algoritmida kvantlash bosqichi nima qiladi?", options: ["A) Ortiqcha ma’lumotlarni tashlab yuboradi", "B) Signalni kuchaytiradi", "C) Formatni almashtiradi", "D) Shovqinni kamaytiradi"], correct: 'A' },
-            { question: "Golomb kodlash asosan qaysi sohada qo‘llaniladi?", options: ["A) O‘rtacha ehtimollik signallari", "B) Video kodlash", "C) Nutq signallari", "D) Past chastotali filtr"], correct: 'B' },
-            { question: "JPEG2000 formati qaysi texnologiyaga asoslangan?", options: ["A) DCT", "B) Veyvlet transformatsiya", "C) Z-transformatsiya", "D) Konvolyutsiya"], correct: 'B' },
-            { question: "JPEG fayllari qaysi siqish algoritmiga tayanadi?", options: ["A) Huffman kodlash", "B) Golomb kodlash", "C) LZW kodlash", "D) Burrows-Wheeler kodlash"], correct: 'A' },
-            { question: "JPEG rasmni qanday bloklarga ajratadi?", options: ["A) 2x2", "B) 4x4", "C) 8x8", "D) 16x16"], correct: 'C' },
-            { question: "Veyvlet kodlashning afzalligi nimada?", options: ["A) Rasmni ko‘p rezolyutsiyada tahlil qilish", "B) Faqat chastotani kamaytiradi", "C) Faqat audio uchun ishlaydi", "D) Signallarni shovqinsiz qiladi"], correct: 'A' },
-            { question: "JPEG algoritmida ishlatiladigan asosiy kodlash bosqichi:", options: ["A) Huffman kodlash", "B) Run-Length kodlash", "C) LZW kodlash", "D) Fano kodlash"], correct: 'A' },
-            { question: "JPEG siqishning kamchiligi:", options: ["A) Har doim siqish darajasi yuqori", "B) Sifat pasayishi mumkin", "C) Faqat qora-oq rasmlarda ishlaydi", "D) Audio uchun ishlamaydi"], correct: 'B' },
-            { question: "JPEG2000 qaysi afzallikni beradi?", options: ["A) Sifat yo‘qolmasdan yuqori siqish", "B) Faqat oq-qora rasmlar", "C) Past hajmli audio fayl", "D) Shovqinsiz signal"], correct: 'A' },
-            { question: "JPEG rasmda DCTdan keyin qaysi bosqich bajariladi?", options: ["A) Kvantlash", "B) Z-transformatsiya", "C) Filtrlash", "D) Entropik kodlash"], correct: 'A' },
-            { question: "JPEG siqishda ishlatiladigan asosiy matematik tushuncha:", options: ["A) Matritsa bloklari", "B) Konvolyutsiya", "C) Korrelyatsiya", "D) Integral hisoblash"], correct: 'A' },
-            { question: "Nuqta operatorlari qanday ishlaydi?", options: ["A) Tasvirdagi har bir pikselni alohida qayta ishlaydi", "B) Piksellar guruhini tahlil qiladi", "C) Transformatsiya asosida kodlaydi", "D) Filtrlarni qo‘llaydi"], correct: 'A' },
-            { question: "Guruh operatorlari qanday ishlaydi?", options: ["A) Har bir pikselni alohida", "B) Qo‘shni piksellar guruhini hisobga oladi", "C) Faqat qora-oq rasmlarda ishlaydi", "D) Tasvir formatini o‘zgartiradi"], correct: 'B' },
-            { question: "Konvolyutsiya amali tasvirdagi nima uchun qo‘llaniladi?", options: ["A) Shovqinni kuchaytirish", "B) Filtrlash va xususiyatlarni ajratish", "C) Faylni siqish", "D) Chastotani o‘zgartirish"], correct: 'B' },
-            { question: "Gistogramma tasvirdagi nimani ko‘rsatadi?", options: ["A) Ranglar taqsimoti", "B) Signal amplitudasi", "C) Audio chastotasi", "D) Fayl hajmi"], correct: 'A' },
-            { question: "Shovqinni pasaytirish uchun qaysi filtr ishlatiladi?", options: ["A) Median filtri", "B) Chastota filtri", "C) Sobel operatori", "D) Huffman kodlash"], correct: 'A' },
-            { question: "Fazoviy filtrlar asosan qaysi domenlarda ishlaydi?", options: ["A) Fazoviy domen", "B) Chastota domeni", "C) Vaqt domeni", "D) Z domeni"], correct: 'A' },
-            { question: "Past chastotali filtrning vazifasi nima?", options: ["A) Detallarni yo‘qotish, umumiy ko‘rinishni yumshatish", "B) Detallarni kuchaytirish", "C) Faqat audio filtr", "D) Faqat video filtr"], correct: 'A' },
-            { question: "Yuqori chastotali filtrning vazifasi:", options: ["A) Chegaralarni kuchaytirish", "B) Rasmni yumshatish", "C) Rasmni kodlash", "D) Gistogrammani normallashtirish"], correct: 'A' },
-            { question: "Median filtr qaysi turdagi shovqinni samarali kamaytiradi?", options: ["A) Tuz va murch shovqini", "B) Gaussian shovqini", "C) Kosinus shovqini", "D) Harmonik shovqin"], correct: 'A' },
-            { question: "Gistogramma tekislash (histogram equalization) nima beradi?", options: ["A) Kontrastni oshiradi", "B) Shovqinni kamaytiradi", "C) Tasvir hajmini kichraytiradi", "D) Piksel sonini oshiradi"], correct: 'A' },
-            { question: "Shovqinni pasaytirishda ishlatiladigan lineer filtr:", options: ["A) Past chastotali filtr", "B) Yuqori chastotali filtr", "C) Teskari filtr", "D) Sobel operatori"], correct: 'A' },
-            { question: "Sobel operatori asosan qaysi vazifani bajaradi?", options: ["A) Chegaralarni aniqlash", "B) Rasmni siqish", "C) Shovqinni kamaytirish", "D) Gistogramma tuzish"], correct: 'A' },
-            { question: "Rasm kontrastini oshirish uchun qo‘llaniladigan usul:", options: ["A) Gistogramma tekislash", "B) Median filtrlash", "C) Yuqori chastotali filtr", "D) Kvantlash"], correct: 'A' },
-            { question: "MPEG audio kodlashning asosiy maqsadi nima?", options: ["a) Signalni kuchaytirish", "b) Ma’lumotni siqish", "c) Shovqinni oshirish", "d) Amplitudani kamaytirish"], correct: 'B' },
-            { question: "MPEG-1 standarti asosan qaysi sohada qo‘llaniladi?", options: ["a) 8K video", "b) Audio-CD va VCD", "c) Sun’iy intellekt", "d) Internet protokollari"], correct: 'B' },
-            { question: "MPEG-2 standarti nimaga mo‘ljallangan?", options: ["a) CD audiosi", "b) HDTV va DVD", "c) Mobil telefonlar", "d) Analog televideniye"], correct: 'B' },
-            { question: "MP3 qaysi standart asosida ishlaydi?", options: ["a) MPEG-1 Layer III", "b) MPEG-2 Layer I", "c) MPEG-4 AVC", "d) H.265 HEVC"], correct: 'A' },
-            { question: "MPEG kodlash jarayonida inson eshitish tizimi qanday rol o‘ynaydi?", options: ["a) Faqat chastota pasaytiradi", "b) Psixoakustik model orqali keraksiz tovushlarni olib tashlaydi", "c) Faqat yuqori chastotalarni uzatadi", "d) Faqat amplitudani kamaytiradi"], correct: 'B' },
-            { question: "Konteyner fayl formati qaysi vazifani bajaradi?", options: ["a) Faqat audio kodlash", "b) Video oqimini qayta ishlash", "c) Bir nechta media oqimlarni birlashtirish", "d) Tasvirni siqmasdan saqlash"], correct: 'C' },
-            { question: "AVI konteyneri asosan qaysi maqsadda ishlatiladi?", options: ["a) Internet orqali tez uzatish", "b) Video va audio oqimni birlashtirish", "c) Rasmlarni saqlash", "d) Signalni filtrlash"], correct: 'B' },
-            { question: "MPEG-4 qaysi imkoniyatni taqdim etadi?", options: ["a) Faqat audio", "b) Interaktiv multimedia, video va audio", "c) Faqat rasm ishlov berish", "d) Shifrlash"], correct: 'B' },
-            { question: "MP4 fayli aslida nima?", options: ["a) Konteyner formati", "b) Video kodek", "c) Audio kodek", "d) JPEG rasm"], correct: 'A' },
-            { question: "WAV formati qanday fayl hisoblanadi?", options: ["a) Siqilgan audio", "b) Siqilmagan audio", "c) Video fayl", "d) Tasvir fayl"], correct: 'B' },
-            { question: "MPEG kodlashning asosiy afzalligi nimada?", options: ["a) Tez qayta ishlash", "b) Hajmni sezilarli kamaytirib, sifatni saqlash", "c) Signalni kuchaytirish", "d) Shovqinni oshirish"], correct: 'B' },
-            { question: "JPEG fayli qanday turdagi siqishni amalga oshiradi?", options: ["a) Yo‘qotishsiz", "b) Yo‘qotishli", "c) Faqat binar kodlash", "d) Signal kuchaytirish"], correct: 'B' },
-            { question: "JPEG kodlashda kvantlash nima uchun kerak?", options: ["a) Fayl hajmini kamaytirish", "b) Ranglarni ko‘paytirish", "c) Signal amplitudasini oshirish", "d) Tasvirni kattalashtirish"], correct: 'A' },
-            { question: "Huffman kodlash qanday ishlaydi?", options: ["a) Eng tez-tez uchraydigan belgilar uchun qisqa kod beradi", "b) Har bir belgiga bir xil uzunlikdagi kod beradi", "c) Faqat audio siqadi", "d) Matematik transformatsiya qiladi"], correct: 'A' },
-            { question: "Golomb kodlash asosan qaysi sohada samarali?", options: ["a) Rasmlarda rangli gradientlarda", "b) Tasodifiy ma’lumotlarda", "c) Past chastotali signallarda", "d) O‘xshash ketma-ketliklarda"], correct: 'D' },
-            { question: "JPEG2000 qaysi kodlash usuliga asoslanadi?", options: ["a) Huffman", "b) Veyvlet transformatsiya", "c) Fourier", "d) PCM"], correct: 'B' },
-            { question: "JPEG kodlashning birinchi bosqichi nima?", options: ["a) Kvantlash", "b) RLE kodlash", "c) DCT o‘zgartirish", "d) Huffman kodlash"], correct: 'C' },
-            { question: "Huffman kodlashda eng kam ehtimolli belgi qanday kodlanadi?", options: ["a) Eng uzun kod bilan", "b) Eng qisqa kod bilan", "c) Hech qanday kod berilmaydi", "d) Faqat raqamli formatda"], correct: 'A' },
-            { question: "Golomb kodlash ko‘proq qaysi siqishda ishlatiladi?", options: ["a) Video", "b) Audio", "c) Tasodifiy ma’lumot", "d) Tasvir"], correct: 'A' },
-            { question: "Nuqta operatorlari nima?", options: ["a) Har bir pikselni alohida o‘zgartiradi", "b) Butun tasvirni o‘zgartiradi", "c) Ranglarni ko‘paytiradi", "d) Signal amplitudasini oshiradi"], correct: 'A' },
-            { question: "Guruh operatorlari qanday ishlaydi?", options: ["a) Har bir pikselga qo‘llanadi", "b) Qo‘shni piksellar guruhiga asoslanadi", "c) Faqat rasm hajmini oshiradi", "d) Signal chastotasini kamaytiradi"], correct: 'B' },
-            { question: "Konvolyutsiya amali tasvirda nima uchun qo‘llanadi?", options: ["a) Faqat hajmni kamaytirish", "b) Tasvirni filtrlash va xususiyatlarni ajratib olish", "c) Ranglarni normallashtirish", "d) Diskretlash"], correct: 'B' },
-            { question: "Gistogramma tasvirda nimani ko‘rsatadi?", options: ["a) Rasm hajmi", "b) Piksel ranglarining taqsimoti", "c) Signal chastotasi", "d) Rasm aniqligi"], correct: 'B' },
-            { question: "Gistogramma tekislash (equalization) nimaga xizmat qiladi?", options: ["a) Rasmni kattalashtirish", "b) Yorug‘lik kontrastini oshirish", "c) Rasmni siqish", "d) Ranglarni kamaytirish"], correct: 'B' },
-            { question: "Shovqinni pasaytirishda qaysi filtr ko‘proq ishlatiladi?", options: ["a) Median filtr", "b) Nyquist filtri", "c) Diskret filtr", "d) FFT filtri"], correct: 'A' },
-            { question: "Past chastotali fazoviy filtr nima qiladi?", options: ["a) Yuqori chastotali tafsilotlarni o‘chiradi", "b) Signalni kuchaytiradi", "c) Tasvirni kattalashtiradi", "d) Ranglarni o‘zgartiradi"], correct: 'A' },
-            { question: "Yuqori chastotali fazoviy filtrning vazifasi nima?", options: ["a) Konturlarni ajratib ko‘rsatadi", "b) Rasm hajmini kamaytiradi", "c) Shovqinni oshiradi", "d) Tasvirni siqadi"], correct: 'A' },
-            { question: "Median filtr asosan qaysi shovqinni kamaytirishda samarali?", options: ["a) Gauss shovqini", "b) Tuz va murch (salt and pepper) shovqini", "c) Sinusoidal shovqin", "d) Faqat past chastotali shovqin"], correct: 'B' },
-            { question: "Konvolyutsiya yadro matritsasi nima deb ataladi?", options: ["a) Filtr yadro (kernel)", "b) Piksel massivi", "c) Amplituda jadvali", "d) Diskret signal"], correct: 'A' },
-            { question: "Gistogramma tekislash natijasida tasvirda nima bo‘ladi?", options: ["a) Kontrast yaxshilanadi", "b) Ranglar kamayadi", "c) Hajm oshadi", "d) Foydasiz piksel qo‘shiladi"], correct: 'A' },
-            { question: "Sobel operatori aslida nima hisoblanadi?", options: ["a) Chegaralarni aniqlash filtri", "b) Signal chastota filtri", "c) Konteyner formati", "d) Gistogramma algoritmi"], correct: 'A' },
-            { question: "Edge detection nima uchun qo‘llaniladi?", options: ["a) Ranglarni o‘zgartirish uchun", "b) Tasvirni siqish uchun", "c) Obyekt chegaralarini aniqlash uchun", "d) Signal chastotasini oshirish uchun"], correct: 'C' },
-            { question: "Sobel operatorining asosiy vazifasi nima?", options: ["a) Tasvirni siqish", "b) Konturlarni aniqlash", "c) Shovqinni pasaytirish", "d) Ranglarni normallashtirish"], correct: 'B' },
-            { question: "Sobel operatori nechta yo‘nalishda gradient hisoblaydi?", options: ["a) 1", "b) 2 (gorizontal va vertikal)", "c) 3", "d) 4"], correct: 'B' },
-            { question: "Canny algoritmi necha bosqichdan iborat?", options: ["a) 2", "b) 3", "c) 4", "d) 5"], correct: 'C' }, // 4 bosqich: silliqlash, gradient, non-maximum supression, hysteresis thresholding
-            { question: "Canny algoritmidagi “non-maximum suppression” bosqichi nima qiladi?", options: ["a) Chegaralarni yumshatadi", "b) Maksimal bo‘lmagan nuqtalarni olib tashlaydi", "c) Shovqinni kuchaytiradi", "d) Ranglarni kamaytiradi"], correct: 'B' },
-            { question: "Chegaralarni aniqlashda yuqori chastotali filtrlar nima qiladi?", options: ["a) Konturlarni kuchaytiradi", "b) Shovqinni kamaytiradi", "c) Tasvirni siqadi", "d) Ranglarni kamaytiradi"], correct: 'A' },
-            { question: "Laplacian operatori qanday konturlarni aniqlaydi?", options: ["a) Birinchi tartibli hosila orqali", "b) Ikkinchi tartibli hosila orqali", "c) Median filtr orqali", "d) Kvantlash orqali"], correct: 'B' },
-            { question: "Chegaralarni aniqlash algoritmlarining umumiy vazifasi nima?", options: ["a) Tasvir hajmini kamaytirish", "b) Obyektlarni fonidan ajratish", "c) Ranglarni ko‘paytirish", "d) Rasmni siqish"], correct: 'B' },
-            { question: "Prewitt operatori qaysi uslubga o‘xshaydi?", options: ["a) Sobel", "b) Canny", "c) Laplacian", "d) Fourier"], correct: 'A' },
-            { question: "Shaklni ajratish nima uchun qo‘llaniladi?", options: ["a) Rasm hajmini kamaytirish", "b) Obyektni fonidan ajratish", "c) Signal chastotasini kamaytirish", "d) Rasmni siqish"], correct: 'B' },
-            { question: "Hough transform asosan qaysi shakllarni aniqlashda ishlatiladi?", options: ["a) Chiziqlar va doiralar", "b) Rangli gradientlar", "c) Kvadrat matritsalar", "d) Piksel kontrasti"], correct: 'A' },
-            { question: "Tasvirni segmentatsiya qilish nima?", options: ["a) Butun rasmni siqish", "b) Tasvirni qismlarga ajratish", "c) Faqat ranglarni kamaytirish", "d) Piksel sonini oshirish"], correct: 'B' },
-            { question: "Shaklni evolyutsiya usuli bilan ajratish nimaga asoslanadi?", options: ["a) Piksel rangiga", "b) Obyekt chegarasining vaqt bo‘yicha o‘zgarishiga", "c) Kvantlashga", "d) Shovqinga"], correct: 'B' },
-            { question: "Doiralarni aniqlash uchun Hough transformida nechta parametr ishlatiladi?", options: ["a) 2", "b) 3 (x markaz, y markaz, radius)", "c) 4", "d) 1"], correct: 'B' },
-            { question: "Thresholding usuli nima qiladi?", options: ["a) Piksellarni ma’lum qiymat bo‘yicha guruhlarga ajratadi", "b) Tasvirni siqadi", "c) Ranglarni oshiradi", "d) Chegaralarni normallashtiradi"], correct: 'A' },
-            { question: "Hough transform qaysi sohalarda qo‘llaniladi?", options: ["a) Raqamli televideniye", "b) Avtomobil raqamlarini aniqlash, obyekt tanish", "c) Audio signallarni siqish", "d) Rasm hajmini kamaytirish"], correct: 'B' },
-            { question: "Gauss filtri qanday filtr hisoblanadi?", options: ["a) Past chastotali silliqlash filtri", "b) Yuqori chastotali kuchaytiruvchi filtr", "c) Median filtr", "d) Kalman filtri"], correct: 'A' },
-            { question: "Sharpening filtr nima qiladi?", options: ["a) Tasvirni silliqlaydi", "b) Konturlarni kuchaytiradi", "c) Shovqinni oshiradi", "d) Ranglarni kamaytiradi"], correct: 'B' },
-            { question: "Filtrlashda “kernel” nima?", options: ["a) Tasvir hajmi", "b) Konvolyutsiya yadrosi (matritsa)", "c) Piksel koordinatasi", "d) Gistogramma"], correct: 'B' },
-            { question: "Sobel filtrining qaysi vazifasi bor?", options: ["a) Chegaralarni ajratish", "b) Ranglarni kamaytirish", "c) Shovqinni kuchaytirish", "d) Faylni siqish"], correct: 'A' },
-            { question: "Tasvirni tiklashning asosiy maqsadi nima?", options: ["A) Tasvirni qisqartirish", "B) Tasvirni siqish", "C) Shikastlangan qismlarni tiklash", "D) Yangi tasvir yaratish"], correct: 'C' },
-            { question: "Shikastlangan tasvirni tiklash jarayoni qanday nomlanadi?", options: ["A) Dekompozitsiya", "B) Rekonstruksiya", "C) Segmentatsiya", "D) Diskretizatsiya"], correct: 'B' },
-            { question: "“Inpainting” algoritmi nimaga qo‘llaniladi?", options: ["A) Signalni siqishga", "B) Tasvirdagi shikastlangan qismlarni tiklashga", "C) Filtrlashga", "D) Rasmni formatlashga"], correct: 'B' },
-            { question: "Mashinali o‘qitish yordamida tasvirni tiklashda asosan nima ishlatiladi?", options: ["A) Klassifikatorlar", "B) Neyron tarmoqlar", "C) Fourier o‘zgartirish", "D) Z-o‘zgartirish"], correct: 'B' },
-            { question: "Shovqinli tasvirni qayta tiklash uchun qaysi filtr ko‘p ishlatiladi?", options: ["A) Median filtr", "B) Sobel operatori", "C) FFT", "D) Laplace"], correct: 'A' },
-            { question: "CNN (Convolutional Neural Network) asosan qaysi vazifa uchun ishlatiladi?", options: ["A) Matn tanish", "B) Tasvir qayta ishlash", "C) Nutqni qayta ishlash", "D) Chastota hisoblash"], correct: 'B' },
-            { question: "Tiklash jarayonida “Denoising” qanday vazifani bajaradi?", options: ["A) Rasmni bo‘lish", "B) Shovqinni kamaytirish", "C) Signalni kuchaytirish", "D) Tasvirni siqish"], correct: 'B' },
-            { question: "Shikastlangan tasvirda yo‘qolgan qismlarni to‘ldirish jarayoni nima deyiladi?", options: ["A) Segmentatsiya", "B) Inpainting", "C) Klassifikatsiya", "D) Filtrlash"], correct: 'B' },
-            { question: "Super-resolution algoritmi qanday ishlaydi?", options: ["A) Piksellar sonini kamaytiradi", "B) Tasvirni yuqori aniqlikda tiklaydi", "C) Faqat qora-oq tasvir yaratadi", "D) Ranglarni o‘chiradi"], correct: 'B' },
-            { question: "Mashinali o‘qitish asosida tasvirni tiklashda model qanday ishlaydi?", options: ["A) Ma’lumotlarni siqadi", "B) O‘rgatilgan ma’lumotdan yo‘qolgan qismlarni bashorat qiladi", "C) Faqat tasvirni bo‘lib beradi", "D) Spektral o‘zgartirishni bajaradi"], correct: 'B' },
-            { question: "Qaysi algoritm shovqinni pasaytirishda ishlatiladi?", options: ["A) Wiener filtr", "B) Sobel operatori", "C) FFT", "D) JPEG"], correct: 'A' },
-            { question: "Mashinali o‘qitishda tasvir tiklash uchun qanday ma’lumotlar kerak bo‘ladi?", options: ["A) Toza va shikastlangan tasvirlar juftligi", "B) Faqat shikastlangan tasvir", "C) Faqat grafik", "D) Raqamli kodlar"], correct: 'A' },
-            { question: "Mashinali o‘qitish algoritmlari signalni qayta ishlashda qanday rol o‘ynaydi?", options: ["A) Tasvirni siqadi", "B) Signalni aniqlash va bashorat qilish", "C) Ovoz balandligini oshiradi", "D) Signalni kesadi"], correct: 'B' },
-            { question: "“Speech Recognition” qaysi turdagi algoritmlar yordamida ishlaydi?", options: ["A) Matn kodlash", "B) Neyron tarmoqlar", "C) FFT", "D) Filtrlash"], correct: 'B' },
-            { question: "Signal klassifikatsiyasi deganda nima tushuniladi?", options: ["A) Signalni kuchaytirish", "B) Signalni turkumlash", "C) Signalni tasodifiylashtirish", "D) Signalni segmentlash"], correct: 'B' },
-            { question: "Signalni bashorat qilish uchun qaysi usul ko‘p ishlatiladi?", options: ["A) RNN", "B) FFT", "C) JPEG", "D) Sobel operatori"], correct: 'A' },
-            { question: "“Feature extraction” signalni qayta ishlashda qanday vazifa bajaradi?", options: ["A) Signalni qisqartiradi", "B) Muhim belgilarni ajratadi", "C) Faqat segmentlaydi", "D) Shovqin qo‘shadi"], correct: 'B' },
-            { question: "Sun’iy intellekt asosida signalni aniqlash qanday amalga oshadi?", options: ["A) Oddiy filtr yordamida", "B) O‘rganilgan naqshlarni tanib olish orqali", "C) Signalni kamaytirish orqali", "D) Faqat tezlikni hisoblash orqali"], correct: 'B' },
-            { question: "MFCC (Mel-Frequency Cepstral Coefficients) qaysi sohada qo‘llaniladi?", options: ["A) Nutq signallarini qayta ishlash", "B) Tasvirlarni bo‘lish", "C) Matn kodlash", "D) Filtrlarni sozlash"], correct: 'A' },
-            { question: "“Object Detection” nima uchun ishlatiladi?", options: ["A) Faqat rasm siqishga", "B) Tasvirdagi obyektlarni aniqlash uchun", "C) Signalni kuchaytirish uchun", "D) Ranglarni kamaytirish uchun"], correct: 'B' },
-            { question: "“Image Segmentation” nima uchun qo‘llaniladi?", options: ["A) Rasmni siqish uchun", "B) Tasvirdagi qismlarni ajratib olish uchun", "C) Rasmni burish uchun", "D) Rasmni nusxalash uchun"], correct: 'B' },
-            { question: "IFFT2 funksiyasi MATLAB’da nimani bajaradi?", options: ["A) Teskari Furye o‘zgartirish", "B) Oldinga o‘zgartirish", "C) Tasvirni aylantirish", "D) Filtrlash"], correct: 'A' }
+            { q: "1. Signal nima?", o: ["A) Faqat tovush to‘lqinlari", "B) Axborotni tashuvchi fizik kattalik", "C) Elektr energiyasining turi", "D) Faqat tasvir"], c: 1 },
+            { q: "2. Deterministik signal qanday signal?", o: ["A) Oldindan aniq ifodalanadigan signal", "B) Tasodifiy xarakterga ega", "C) Faqat analog", "D) Faqat raqamli"], c: 0 },
+            { q: "3. Tasodifiy signalning asosiy belgisi?", o: ["A) Har doim takrorlanadi", "B) Oldindan to‘liq aniqlab bo‘lmaydi", "C) Sinus shaklida bo‘ladi", "D) Spektri yo‘q"], c: 1 },
+            { q: "4. Analog signal qanday ifodalanadi?", o: ["A) Diskret qiymatlar bilan", "B) Cheksiz sonli qiymatlar bilan", "C) Faqat ikkilik sonlar bilan", "D) Matnli ko‘rinishda"], c: 1 },
+            { q: "5. Quyidagilardan qaysi biri signal turiga kirmaydi?", o: ["A) Audio signal", "B) Video signal", "C) Radiatsiya", "D) Matn hujjati"], c: 3 },
+            { q: "6. Tasvir signali qanday hosil bo‘ladi?", o: ["A) Matnni kodlash orqali", "B) Yorug‘likning fazoviy tarqalishidan", "C) Elektr tokining chastotasidan", "D) Magnit maydonidan"], c: 1 },
+            { q: "7. Signalning asosiy parametrlari qaysilar?", o: ["A) Amplituda, chastota, faza", "B) Rang, shakl, og‘irlik", "C) Sifat, tezlik, hajm", "D) Masshtab, koordinata, rang"], c: 0 },
+            { q: "8. Analog signalning asosiy xususiyati nima?", o: ["A) Diskret qiymatlarga ega", "B) Uzluksiz bo‘lishi", "C) Shovqinga sezgir emasligi", "D) Doimiy chastotaga ega"], c: 1 },
+            { q: "9. Raqamli signal qanday qiymatlardan iborat bo‘ladi?", o: ["A) Cheksiz ko‘p qiymatlardan", "B) Diskret va chekli qiymatlardan", "C) Analog kattaliklardan", "D) Vaqtning uzluksiz funksiyalaridan"], c: 1 },
+            { q: "10. Signallarni qayta ishlashning asosiy maqsadi nima?", o: ["A) Shovqinni kuchaytirish", "B) Foydali ma’lumotlarni ajratib olish", "C) Ma’lumotni buzish", "D) Signallarni kamaytirish"], c: 1 },
+            { q: "11. Inson audiovizual tizimi deganda nima tushuniladi?", o: ["A) Faqat ko‘rish", "B) Ko‘rish va eshitish tizimlari birgaligi", "C) Faqat nutq", "D) Kompyuter grafikasi"], c: 1 },
+            { q: "12. Audiovizual tizim orqali inson qanday ma’lumot oladi?", o: ["A) Faqat matn", "B) Tasvir va ovoz orqali", "C) Faqat raqamli", "D) Faqat elektromagnit"], c: 1 },
+            { q: "13. Nutq signallariga ishlov berish texnologiyalariga misol:", o: ["A) Ovozdan matn yaratish, nutqni tanish", "B) Faqat signalni kuchaytirish", "C) Raqamli tasvirni o‘zgartirish", "D) Data siqish"], c: 0 },
+            { q: "14. Nutq signaliga ishlov berishda asosiy maqsad:", o: ["A) Ovoz sifatini pasaytirish", "B) Nutqni tahlil qilish va tanib olish", "C) Ovozning hajmini kattalashtirish", "D) Ovozni faqat yozib olish"], c: 1 },
+            { q: "15. Nutq signallarini tahlil qilishda eng ko‘p ishlatiladigan usul?", o: ["A) MFCC", "B) Fourier qatorlari", "C) Tasodifiy signal", "D) Raqamli siqish"], c: 0 },
+            { q: "16. Matlabda signalni ekranda tasvirlash buyrug'i?", o: ["A) Plot()", "B) Wavread()", "C) Clc", "D) Pwelch()"], c: 0 },
+            { q: "17. Signal deb nima aytiladi?", o: ["A) fizik jarayonning parametrlarini o‘zgarishiga", "B) inson haqida ma’lumot", "C) ma'lumotnoma", "D) jadval"], c: 0 },
+            { q: "18. EEG qaysi biosignalni o‘lchash uchun ishlatiladi?", o: ["A) Yurak urishi", "B) Miyaning elektr faolligi", "C) Mushak harakati", "D) Nafas olish"], c: 1 },
+            { q: "19. EKG asosan nima uchun qo‘llaniladi?", o: ["A) Miya faoliyati", "B) Yurak faoliyatini qayd etish", "C) Nutqni qayd qilish", "D) Tasvir olish"], c: 1 },
+            { q: "20. Ko‘rish tizimida asosiy sezgir element nima?", o: ["A) Qon tomirlari", "B) To‘r pardadagi fotoretseptorlar", "C) Mushak tolalari", "D) Asab tugunlari"], c: 1 },
+            { q: "21. Furye o‘zgartirishning asosiy maqsadi?", o: ["A) Vaqt sohasidan chastota sohasiga o‘tkazish", "B) Kuchaytirish", "C) Kodlash", "D) Tasodifiylashtirish"], c: 0 },
+            { q: "22. Furye o‘zgartirishning teskari turi nima uchun kerak?", o: ["A) Chastotadan vaqt sohasiga qaytarish", "B) Shovqinlashtirish", "C) Siqish", "D) Kodlash"], c: 0 },
+            { q: "23. Spektr nima?", o: ["A) Signalning chastota tarkibi", "B) Amplituda", "C) Uzunlik", "D) Faza"], c: 0 },
+            { q: "24. Quvvat spektral tahlili nima?", o: ["A) Energiyani chastotalar bo‘yicha taqsimlash", "B) Kuchaytirish", "C) Kodlash", "D) Uzatish"], c: 0 },
+            { q: "25. Energiya spektral zichligi nima?", o: ["A) Energiya taqsimoti", "B) Amplituda qiymati", "C) Davriylik", "D) Faza"], c: 0 },
+            { q: "26. Furye tahlili asosida qanday ko‘rsatkich olinadi?", o: ["A) Chastota, faza, amplituda", "B) Hajm", "C) Davr", "D) Uzunlik"], c: 0 },
+            { q: "27. Fourier tahlilida signal qanday ifodalanadi?", o: ["A) Vaqt domenida", "B) Chastota domenida spektr ko‘rinishida", "C) Amplituda domenida", "D) Kompleks faza"], c: 1 },
+            { q: "28. Furye o'zgartirish formulasi?", o: ["A) Integral formula", "B) Yig'indi", "C) Hosila", "D) Limit"], c: 0 }, // Matnli savolga o'girildi
+            { q: "29. Uzluksiz Furye o‘zgartirish qaysi signallar uchun?", o: ["A) Diskret", "B) Analog signallar", "C) Buzilgan", "D) Shovqinli"], c: 1 },
+            { q: "30. Spektral tahlil natijasida nima bilinadi?", o: ["A) Chastotalar va quvvat", "B) Uzunlik", "C) Rang", "D) Nom"], c: 0 },
+            { q: "31. Quvvat spektral tahlili nimani o'rganadi?", o: ["A) Signal energiyasi", "B) Balandlik", "C) Yo‘nalish", "D) Hajm"], c: 0 },
+            { q: "32. Davriy signal qanday signal?", o: ["A) Tasodifiy", "B) Vaqt oralig‘ida takrorlanadi", "C) Sinus shaklida", "D) Davomsiz"], c: 1 },
+            { q: "33. Davriy bo‘lmagan signalning xususiyati?", o: ["A) Takrorlanadi", "B) Takrorlanmaydi", "C) Sinus shaklida", "D) Analog"], c: 1 },
+            { q: "34. DCT ko‘proq qaysi sohada ishlatiladi?", o: ["A) Matematika", "B) Tasvir va video siqishda", "C) Elektromagnit", "D) Radiotexnika"], c: 1 },
+            { q: "35. Davriy signalni ifodalash usuli?", o: ["A) Furye qatori", "B) Integrallar", "C) Matn", "D) Grafik"], c: 0 },
+            { q: "36. Davriy bo‘lmagan signalni ifodalash usuli?", o: ["A) Furye integrali", "B) DCT", "C) MFCC", "D) Shovqinli model"], c: 0 },
+            { q: "37. DCT algoritmi qaysi standartda asosiy?", o: ["A) JPEG siqish", "B) MPEG kodlash", "C) DOC", "D) PDF"], c: 0 },
+            { q: "38. Quvvat spektridan nima aniqlanadi?", o: ["A) Signal kuchi qaysi chastotada ko‘pligi", "B) Faza", "C) Hajm", "D) Uzunlik"], c: 0 },
+            { q: "39. DCT va DFT farqi?", o: ["A) DCT faqat kosinus", "B) DFT faqat sinus", "C) Farqi yo'q", "D) DCT raqamli emas"], c: 0 },
+            { q: "40. Davriy signal ta'rifi?", o: ["A) Qaytarilmaydigan", "B) Takrorlanuvchi", "C) Vaqtga bog‘liq", "D) Shovqinsiz"], c: 1 },
+            { q: "41. DCT formulasi?", o: ["A) Kosinuslar yig'indisi", "B) Sinuslar", "C) Eksponenta", "D) Integral"], c: 0 }, 
+            { q: "42. Davriy signal uchun asosiy parametr?", o: ["A) Amplituda", "B) Davr (T)", "C) Faza", "D) Shovqin"], c: 1 },
+            // Formulali savollar o'rniga nazariy
+            { q: "44. DCT-1 xususiyati?", o: ["A) Juft simmetriya", "B) Toq simmetriya", "C) Davriylik", "D) Chiziqlilik"], c: 0 },
+            { q: "45. DCT-2 xususiyati?", o: ["A) Eng ko'p ishlatiladigan", "B) Kam ishlatiladigan", "C) Murakkab", "D) Oddiy"], c: 0 },
+            { q: "46. DCT-3 xususiyati?", o: ["A) Teskari DCT-2", "B) To'g'ri DCT", "C) Kvadrat", "D) Logarifmik"], c: 0 },
+            { q: "47. DCT-4 xususiyati?", o: ["A) O'zgartirilgan", "B) Oddiy", "C) Murakkab", "D) Chiziqli"], c: 0 },
+            { q: "48. Konvolyutsiya nima uchun ishlatiladi?", o: ["A) Aralashtirish", "B) Tizim orqali o‘tkazishni ifodalash", "C) Tasodifiylashtirish", "D) Kodlash"], c: 1 },
+            { q: "49. Svyortka amali qayerda qo‘llaniladi?", o: ["A) Filtrlashda", "B) Buzishda", "C) Kodlashda", "D) Tahrirlashda"], c: 0 },
+            { q: "50. 2D svyortka qaysi sohada qo‘llaniladi?", o: ["A) Tasvirlarga ishlov berishda", "B) Ovoz", "C) Matn", "D) Chizmalar"], c: 0 },
+            { q: "51. Avtokorrelyatsiya nima?", o: ["A) O‘zi bilan solishtirish", "B) Ikki signalni", "C) Filtrlash", "D) Siqish"], c: 0 },
+            { q: "52. Korrelyatsiya formulasi?", o: ["A) Integral ko'paytma", "B) Yig'indi", "C) Ayirma", "D) Bo'linma"], c: 0 },
+            { q: "53. Korrelyatsiya qanday aniqlanadi?", o: ["A) Kechiktirilgan nusxa bilan o‘xshashlik", "B) Amplituda", "C) Chastota", "D) Uzunlik"], c: 0 },
+            { q: "54. Avtokorrelyatsiya ta'rifi?", o: ["A) Boshqa signal bilan", "B) O‘zining kechiktirilgan nusxasi bilan", "C) Nolga tenglash", "D) Filtrlash"], c: 1 },
+            { q: "55. Korrelyatsiya nimani o‘lchaydi?", o: ["A) O‘xshashlikni", "B) Davrni", "C) Fazani", "D) Rangni"], c: 0 },
+            { q: "56. 2D korrelyatsiya maqsadi?", o: ["A) Tasvirlarni taqqoslash", "B) Ovoz kuchaytirish", "C) Video", "D) Chastota"], c: 0 },
+            { q: "57. Kross-korrelyatsiya vazifasi?", o: ["A) Ikki turli signal o‘xshashligi", "B) Siqish", "C) Buzish", "D) Kuchaytirish"], c: 0 },
+            { q: "58. Konvolyutsiya va korrelyatsiya farqi?", o: ["A) Bitta signal teskari aylantiriladi", "B) Nol bo‘ladi", "C) Kuchayadi", "D) Qisqaradi"], c: 0 },
+            { q: "59. Svyortka matematik ifodasi?", o: ["A) y(n) = x(n)*h(n)", "B) y(n) = x(n)+h(n)", "C) y(n) = x(n)-h(n)", "D) y(n) = x(n)/h(n)"], c: 0 },
+            { q: "60. Diskret kross-korrelyatsiya?", o: ["A) r(k) = sum(x(n)y(n-k))", "B) r(k) = sum(x(n))", "C) r(k) = 0", "D) r(k) = 1"], c: 0 },
+            { q: "61. Analog filtrlarning turlari?", o: ["A) LPF, HPF, BPF, BSF", "B) Diskret", "C) Matn", "D) Oddiy"], c: 0 },
+            { q: "62. Signalni kuchaytirish qaysi filtr vazifasi emas?", o: ["A) LPF", "B) HPF", "C) BPF", "D) Hech biri (Filtr kuchaytirmaydi, o'tkazadi)"], c: 3 },
+            { q: "63. Filtrlash maqsadi?", o: ["A) Keraksiz komponentlarni olish", "B) Shovqin", "C) Buzish", "D) Qisqartirish"], c: 0 },
+            { q: "64. Analog filtr vazifasi:", o: ["A) Kuchaytirish", "B) Keraksiz chastotalarni yo‘qotish", "C) Buzish", "D) Siqish"], c: 1 },
+            { q: "65. Past chastotali filtr vazifasi:", o: ["A) Yuqorini o‘tkazadi", "B) Pastni o‘tkazadi", "C) O'tkazmaydi", "D) Shovqin"], c: 1 },
+            { q: "66. Yuqori chastotali filtr vazifasi:", o: ["A) Pastni o‘tkazish", "B) Yuqorini o‘tkazish", "C) O‘rta", "D) Hech narsa"], c: 1 },
+            { q: "67. Polosali filtr vazifasi:", o: ["A) Biror chastotani", "B) Diapazonni o‘tkazish", "C) Pastni", "D) Yuqorini"], c: 1 },
+            { q: "68. Teskari polosali filtr vazifasi:", o: ["A) Diapazonni to‘sish", "B) Hammasini o‘tkazish", "C) Yuqorini", "D) Pastni"], c: 0 },
+            { q: "69. Analog filtrlar tarkibi?", o: ["A) R2-D2", "B) Rezistor, kondensator, induktor", "C) Chip", "D) Generator"], c: 1 },
+            { q: "70. Past chastotali filtr nomi:", o: ["A) High-pass", "B) Low-pass", "C) Band-stop", "D) Band-pass"], c: 1 },
+            { q: "71. Segmentlash maqsadi?", o: ["A) Filtrlash", "B) Qismlarga ajratish", "C) Siqish", "D) Tiklash"], c: 1 },
+            { q: "72. Freymlashda signal qanday bo‘linadi?", o: ["A) Chegaralarga", "B) Kichik vaqt oraliqlarga", "C) Chastotalarga", "D) Amplitudaga"], c: 1 },
+            { q: "73. Segmentlash qo‘llanilishi?", o: ["A) Nutq", "B) Tasvir", "C) Video", "D) Barchasida"], c: 3 },
+            { q: "74. Freymlash natijasi?", o: ["A) Siqiladi", "B) Qismlarga bo‘linadi", "C) Kamayadi", "D) Tiklanadi"], c: 1 },
+            { q: "75. Freymlash qanday bo'laklarga ajratiladi?", o: ["A) Cheksiz", "B) Katta", "C) Bir xil uzunlikdagi qisqa", "D) Bitta"], c: 2 },
+            { q: "76. Segment uzunligi omili?", o: ["A) Signal chastotasi", "B) Xotira", "C) Amplituda", "D) Tur"], c: 0 },
+            { q: "77. Overlap (ustma-ust) sababi?", o: ["A) Uzunlikni kamaytirish", "B) Informatsiyani yo‘qotmaslik", "C) Buzish", "D) Chastota"], c: 1 },
+            { q: "78. Segmentlash sohasi?", o: ["A) Elektromagnit", "B) Nutqni qayta ishlash", "C) Fotonik", "D) Radiatsiya"], c: 1 },
+            { q: "79. Freym uzunligi birligi?", o: ["A) Hz", "B) Millisekund", "C) Volt", "D) Bit"], c: 1 },
+            { q: "80. Segmentlangan signalda amallar?", o: ["A) Yig‘indi", "B) Spektral tahlil", "C) Amplituda", "D) Hech narsa"], c: 1 },
+            { q: "81. Namunalash nima?", o: ["A) Kamaytirish", "B) Diskret vaqt nuqtalarida o‘lchash", "C) Oshirish", "D) Filtrlash"], c: 1 },
+            { q: "82. Nyquist teoremasi chastotasi?", o: ["A) Kichik", "B) Teng", "C) Ikki baravar katta", "D) Cheksiz"], c: 2 },
+            { q: "83. Aliasing nima?", o: ["A) Kuchayish", "B) Shovqin", "C) Noto‘g‘ri chastota ko'rinishi", "D) Kamayish"], c: 2 },
+            { q: "84. 3 kHz signal uchun namunalash?", o: ["A) 1.5 kHz", "B) 3 kHz", "C) 6 kHz", "D) 12 kHz"], c: 2 },
+            { q: "85. Video namunalash chastotasi?", o: ["A) 20 Hz", "B) 25 Hz", "C) 44.1 kHz", "D) 13.5 MHz"], c: 3 },
+            { q: "86. CD audio chastotasi?", o: ["A) 8 kHz", "B) 22.05 kHz", "C) 44.1 kHz", "D) 48 Hz"], c: 2 },
+            { q: "87. Nyquist chastotasi nima?", o: ["A) Maksimal qiymat", "B) Signal chastotasining yarmi", "C) Namunalash chastotasining yarmi", "D) Amplituda"], c: 2 },
+            { q: "88. Diskretlash bosqichlari?", o: ["A) Segmentlash", "B) Namunalash va kvantlash", "C) Filtrlash", "D) Kuchaytirish"], c: 1 },
+            { q: "89. Kvantlash nima?", o: ["A) Chastota", "B) Amplitudani raqamlashtirish", "C) Filtr", "D) Qismlar"], c: 1 },
+            { q: "90. Noto‘g‘ri diskretlash oqibati?", o: ["A) Kuchayish", "B) Aliasing", "C) Kengayish", "D) Filtrlash"], c: 1 },
+            { q: "91. Diskret signal nima?", o: ["A) Uzluksiz", "B) Cheksiz", "C) Ma’lum nuqtalarda aniqlangan", "D) Analog"], c: 2 },
+            { q: "92. Diskret signal afzalligi?", o: ["A) Shovqinga chidamli", "B) Yuqori chastota", "C) Uzluksiz", "D) Katta amplituda"], c: 0 },
+            { q: "93. Z-o‘zgartirish maqsadi?", o: ["A) Amplituda", "B) Vaqt sohasidan Z-sohaga", "C) Chastota", "D) Kuchaytirish"], c: 1 },
+            { q: "94. Vaqt siljishi Z-da?", o: ["A) Z darajasi o‘zgaradi", "B) Kamayadi", "C) Ortadi", "D) Nol bo‘ladi"], c: 0 },
+            { q: "95. Z-o‘zgartirish sababi?", o: ["A) Kodlash", "B) Tizim tahlili", "C) Eshittirish", "D) Oshirish"], c: 1 },
+            { q: "96. Diskret signal energiyasi?", o: ["A) Integral", "B) Kvadrat yig‘indilar", "C) Maksimal", "D) Amplituda"], c: 1 },
+            { q: "97. Z-o‘zgartirish dasturi?", o: ["A) Photoshop", "B) MATLAB", "C) Word", "D) Excel"], c: 1 },
+            { q: "98. Z-o‘zgartirish qaysi sohaga yaqin?", o: ["A) Laplas", "B) Fourier", "C) Konvolyutsiya", "D) Kvantlash"], c: 0 },
+            { q: "99. DFT va FFT farqi?", o: ["A) DFT tez", "B) FFT tez algoritm", "C) Bir xil", "D) FFT analog"], c: 1 },
+            { q: "100. FFT qayerda ishlatiladi?", o: ["A) Audio/video siqish", "B) Matn", "C) Grafik", "D) Hisob"], c: 0 },
+            { q: "101. FFT ning DFT dan farqi?", o: ["A) Natija", "B) Hisoblash tezroq", "C) O‘zgartiradi", "D) Kuchaytiradi"], c: 1 },
+            { q: "102. Tasodifiy signal nima?", o: ["A) Aniq", "B) Statistik tavsifli", "C) Ma'lumotsiz", "D) Doimiy"], c: 1 },
+            { q: "103. Moslashuvchan filtr?", o: ["A) Kuchaytiradi", "B) Parametrlarni o‘zgartiradi", "C) Buzadi", "D) Kamaytiradi"], c: 1 },
+            { q: "104. Median filtr vazifasi?", o: ["A) Shovqinni kamaytirish", "B) Chastota", "C) Kuchaytirish", "D) Kodlash"], c: 0 },
+            { q: "105. Adaptiv filtr algoritmi?", o: ["A) LMS", "B) FFT", "C) JPEG", "D) DCT"], c: 0 },
+            { q: "106. Tasodifiy signal modeli?", o: ["A) Ehtimollik taqsimoti", "B) Kvadrat", "C) O‘zgarmas", "D) Nol"], c: 0 },
+            { q: "107. Tasodifiy signal taqsimoti?", o: ["A) Gaussian (Normal)", "B) Sinusoidal", "C) Logarifmik", "D) Chiziqli"], c: 0 },
+            { q: "108. Median filtr qaysi shovqinga?", o: ["A) Oq", "B) Impuls shovqin", "C) Fazoviy", "D) Analog"], c: 1 },
+            { q: "109. Moslashuvchan filtr algoritmlari?", o: ["A) LMS, RLS", "B) FFT", "C) JPEG", "D) Sobel"], c: 0 },
+            { q: "110. LMS ma'nosi?", o: ["A) Least Mean Square", "B) Linear Multiple", "C) Long Median", "D) Low Memory"], c: 0 },
+            { q: "111. RLS ma'nosi?", o: ["A) Random Linear", "B) Recursive Least Square", "C) Real Level", "D) Ratio Linear"], c: 1 },
+            { q: "112. 2D Furye qayerda?", o: ["A) Audio", "B) Tasvir tahlili", "C) Matn", "D) Grafik"], c: 1 },
+            { q: "113. 2D Furye natijasi?", o: ["A) Chastotaviy spektr", "B) Amplituda", "C) Matn", "D) Yig'indi"], c: 0 },
+            { q: "114. 2D Furye dasturi?", o: ["A) MATLAB", "B) Word", "C) Photoshop", "D) AutoCAD"], c: 0 },
+            { q: "115. 2D Furye vazifasi?", o: ["A) Rang", "B) Spektrini beradi", "C) Kattalashtiradi", "D) Aylantiradi"], c: 1 },
+            { q: "116. Veyvlet ma'nosi?", o: ["A) Katta to'lqin", "B) Kichik to‘lqin", "C) Spektr", "D) Signal"], c: 1 },
+            { q: "117. 2D Furye qaysi signalga?", o: ["A) Audio", "B) Matn", "C) Tasvir/Video", "D) Analog"], c: 2 },
+            { q: "118. Veyvlet yechimi?", o: ["A) Aliasing", "B) Vaqt-chastota aniqligi", "C) Kvantlash", "D) Kuchaytirish"], c: 1 },
+            { q: "119. 2D Furye filtrlash?", o: ["A) Chastotani kesib", "B) Kuchaytirib", "C) Segmentlab", "D) Kvantlash"], c: 0 },
+            { q: "120. Veyvlet afzalligi?", o: ["A) Tasvirni siqish", "B) Kuchaytirish", "C) Oshirish", "D) Diskretlash"], c: 0 },
+            { q: "121. Furye va Veyvlet farqi?", o: ["A) Furye-chastota, Veyvlet-vaqt+chastota", "B) Bir xil", "C) Kvantlash", "D) Segmentlash"], c: 0 },
+            { q: "122. MPEG audio prinsipi?", o: ["A) Kvantlash", "B) Transformatsion", "C) Psixoakustik model", "D) Entropik"], c: 2 },
+            { q: "123. MPEG-1 Layer III nomi?", o: ["A) MP2", "B) MP3", "C) AAC", "D) WAV"], c: 1 },
+            { q: "124. MPEG maqsadi?", o: ["A) Kattalashtirish", "B) Siqish va sifat", "C) Filtrlash", "D) Diskretlash"], c: 1 },
+            { q: "125. MPEG konteyner?", o: ["A) .mp4", "B) .bmp", "C) .jpg", "D) .gif"], c: 0 },
+            { q: "126. MPEG-4 imkoniyati?", o: ["A) Audio", "B) Video", "C) Audio/Video/Interaktiv", "D) Rasm"], c: 2 },
+            { q: "127. Kodek nima?", o: ["A) Kodlash/Dekodlash", "B) Chastota", "C) Hajm", "D) Filtr"], c: 0 },
+            { q: "128. Entropiya kodlash usuli?", o: ["A) Fourier", "B) Huffman", "C) Konvolyutsiya", "D) Z-transform"], c: 1 },
+            { q: "129. Frame nima?", o: ["A) Nuqta", "B) Qator", "C) Blok", "D) Kadr (ma'lumot bo'lagi)"], c: 3 },
+            { q: "130. Lossless format?", o: ["A) JPEG", "B) PNG", "C) MPEG", "D) MP3"], c: 1 },
+            { q: "131. MPEG transformatsiyasi?", o: ["A) DFT", "B) DCT", "C) Z", "D) Laplas"], c: 1 },
+            { q: "132. Konteyner vazifasi?", o: ["A) Video", "B) Birlashtirish", "C) Kuchaytirish", "D) Rasm"], c: 1 },
+            { q: "133. MPEG-2 qayerda?", o: ["A) Telefon", "B) DVD/TV", "C) SMS", "D) IoT"], c: 1 },
+            { q: "134. MP4 standarti?", o: ["A) MPEG-1", "B) MPEG-2", "C) MPEG-4", "D) JPEG"], c: 2 },
+            { q: "135. JPEG transformatsiyasi?", o: ["A) Fourier", "B) DCT", "C) Laplas", "D) Z"], c: 1 },
+            { q: "136. JPEG turi?", o: ["A) Lossless", "B) Lossy", "C) Hech biri", "D) Audio"], c: 1 },
+            { q: "137. Huffman kodi?", o: ["A) Chastotaga teskari uzunlik", "B) To'g'ri", "C) Bir xil", "D) Tasodifiy"], c: 0 },
+            { q: "138. JPEG kengaytmasi?", o: ["A) .jpg", "B) .png", "C) .gif", "D) .bmp"], c: 0 },
+            { q: "139. JPEG kvantlash?", o: ["A) Ortiqchani tashlash", "B) Kuchaytirish", "C) Formatlash", "D) Shovqin"], c: 0 },
+            { q: "140. Golomb kodlash?", o: ["A) O‘rtacha ehtimollik", "B) Video", "C) Nutq", "D) Filtr"], c: 0 },
+            { q: "141. JPEG2000 texnologiyasi?", o: ["A) DCT", "B) Veyvlet", "C) Z", "D) Konvolyutsiya"], c: 1 },
+            { q: "142. JPEG algoritmi?", o: ["A) Huffman", "B) Golomb", "C) LZW", "D) BW"], c: 0 },
+            { q: "143. JPEG bloklari?", o: ["A) 2x2", "B) 4x4", "C) 8x8", "D) 16x16"], c: 2 },
+            { q: "144. Veyvlet afzalligi?", o: ["A) Ko'p rezolyutsiya", "B) Chastota", "C) Audio", "D) Shovqin"], c: 0 },
+            { q: "145. JPEG kodlash bosqichi?", o: ["A) Huffman", "B) RLE", "C) LZW", "D) Fano"], c: 0 },
+            { q: "146. JPEG kamchiligi?", o: ["A) Siqish", "B) Sifat pasayishi", "C) Qora-oq", "D) Audio"], c: 1 },
+            { q: "147. JPEG2000 afzalligi?", o: ["A) Yuqori siqish/sifat", "B) Qora-oq", "C) Audio", "D) Shovqin"], c: 0 },
+            { q: "148. JPEG DCT dan keyin?", o: ["A) Kvantlash", "B) Z", "C) Filtr", "D) Entropik"], c: 0 },
+            { q: "149. JPEG matematikasi?", o: ["A) Matritsa", "B) Konvolyutsiya", "C) Korrelyatsiya", "D) Integral"], c: 0 },
+            { q: "150. Nuqta operatori?", o: ["A) Har bir piksel", "B) Guruh", "C) Transformatsiya", "D) Filtr"], c: 0 },
+            { q: "151. Guruh operatori?", o: ["A) Har bir", "B) Qo‘shni piksellar", "C) Hajm", "D) Chastota"], c: 1 },
+            { q: "152. Konvolyutsiya tasvirda?", o: ["A) Hajm", "B) Filtrlash", "C) Rang", "D) Diskretlash"], c: 1 },
+            { q: "153. Gistogramma nima?", o: ["A) Rang taqsimoti", "B) Amplituda", "C) Chastota", "D) Hajm"], c: 0 },
+            { q: "154. Shovqin filtri?", o: ["A) Median", "B) Chastota", "C) Sobel", "D) Huffman"], c: 0 },
+            { q: "155. Fazoviy filtr domeni?", o: ["A) Fazoviy", "B) Chastota", "C) Vaqt", "D) Z"], c: 0 },
+            { q: "156. Past chastotali filtr?", o: ["A) Yumshatish", "B) Kuchaytirish", "C) Audio", "D) Video"], c: 0 },
+            { q: "157. Yuqori chastotali filtr?", o: ["A) Chegarani kuchaytirish", "B) Yumshatish", "C) Kodlash", "D) Normallash"], c: 0 },
+            { q: "158. Median filtr qaysi shovqinga?", o: ["A) Tuz va murch", "B) Gauss", "C) Kosinus", "D) Harmonik"], c: 0 },
+            { q: "159. Filtrlash maqsadi?", o: ["A) Yaxshilash", "B) Buzish", "C) Siqish", "D) Kodlash"], c: 0 },
+            { q: "160. Gistogramma tekislash?", o: ["A) Kontrast", "B) Shovqin", "C) Hajm", "D) Piksel"], c: 0 },
+            { q: "161. Lineer filtr?", o: ["A) Past chastotali", "B) Yuqori", "C) Teskari", "D) Sobel"], c: 0 },
+            { q: "162. Sobel operatori?", o: ["A) Chegara aniqlash", "B) Siqish", "C) Shovqin", "D) Gistogramma"], c: 0 },
+            { q: "163. Kontrast oshirish?", o: ["A) Gistogramma tekislash", "B) Median", "C) Yuqori", "D) Kvantlash"], c: 0 },
+            { q: "164. MPEG maqsadi?", o: ["A) Kuchaytirish", "B) Siqish", "C) Shovqin", "D) Amplituda"], c: 1 },
+            { q: "165. MPEG-1 sohasi?", o: ["A) 8K", "B) CD/VCD", "C) AI", "D) Internet"], c: 1 },
+            { q: "166. MPEG-2 sohasi?", o: ["A) CD", "B) HDTV/DVD", "C) Mobil", "D) Analog"], c: 1 },
+            { q: "167. MP3 asosi?", o: ["A) MPEG-1 Layer III", "B) MPEG-2", "C) MPEG-4", "D) H.265"], c: 0 },
+            { q: "168. Psixoakustik model?", o: ["A) Chastota", "B) Keraksiz tovushni olish", "C) Yuqori", "D) Amplituda"], c: 1 },
+            { q: "169. Konteyner vazifasi?", o: ["A) Audio", "B) Video", "C) Birlashtirish", "D) Siqmaslik"], c: 2 },
+            { q: "170. AVI konteyneri?", o: ["A) Internet", "B) Birlashtirish", "C) Rasm", "D) Filtr"], c: 1 },
+            { q: "171. MPEG-4 imkoniyati?", o: ["A) Audio", "B) Interaktiv", "C) Rasm", "D) Shifrlash"], c: 1 },
+            { q: "172. MP4 fayli?", o: ["A) Konteyner", "B) Video", "C) Audio", "D) JPEG"], c: 0 },
+            { q: "173. WAV formati?", o: ["A) Siqilgan", "B) Siqilmagan", "C) Video", "D) Tasvir"], c: 1 },
+            { q: "174. MPEG afzalligi?", o: ["A) Tezlik", "B) Siqish va sifat", "C) Kuchaytirish", "D) Shovqin"], c: 1 },
+            { q: "175. JPEG siqish turi?", o: ["A) Yo‘qotishsiz", "B) Yo‘qotishli", "C) Binar", "D) Kuchaytirish"], c: 1 },
+            { q: "176. JPEG kvantlash?", o: ["A) Hajm kamaytirish", "B) Rang", "C) Amplituda", "D) Kattalashtirish"], c: 0 },
+            { q: "177. Huffman kodi?", o: ["A) Tez uchrasa qisqa", "B) Bir xil", "C) Audio", "D) Matematik"], c: 0 },
+            { q: "178. Golomb kodi?", o: ["A) Rang", "B) Tasodifiy", "C) Past", "D) O‘xshash"], c: 3 },
+            { q: "179. JPEG2000 asosi?", o: ["A) Huffman", "B) Veyvlet", "C) Fourier", "D) PCM"], c: 1 },
+            { q: "180. JPEG birinchi bosqich?", o: ["A) Kvantlash", "B) RLE", "C) DCT", "D) Huffman"], c: 2 },
+            { q: "181. Huffman kam ehtimol?", o: ["A) Uzun kod", "B) Qisqa", "C) Yo'q", "D) Raqam"], c: 0 },
+            { q: "182. Golomb qayerda?", o: ["A) Video", "B) Audio", "C) Tasodif", "D) Tasvir"], c: 0 },
+            { q: "183. Nuqta operatori?", o: ["A) Har bir piksel", "B) Butun", "C) Rang", "D) Amplituda"], c: 0 },
+            { q: "184. Guruh operatori?", o: ["A) Har bir", "B) Qo‘shni guruh", "C) Hajm", "D) Chastota"], c: 1 },
+            { q: "185. Konvolyutsiya tasvirda?", o: ["A) Hajm", "B) Filtrlash", "C) Rang", "D) Diskretlash"], c: 1 },
+            { q: "186. Gistogramma?", o: ["A) Hajm", "B) Rang taqsimoti", "C) Chastota", "D) Aniqlik"], c: 1 },
+            { q: "187. Gistogramma tekislash?", o: ["A) Kattalashtirish", "B) Kontrast", "C) Siqish", "D) Rang"], c: 1 },
+            { q: "188. Shovqin filtri?", o: ["A) Median", "B) Nyquist", "C) Diskret", "D) FFT"], c: 0 },
+            { q: "189. Past chastotali filtr?", o: ["A) Detallarni o‘chiradi", "B) Kuchaytiradi", "C) Kattalashtiradi", "D) Rang"], c: 0 },
+            { q: "190. Yuqori chastotali filtr?", o: ["A) Kontur ajratish", "B) Kamaytirish", "C) Shovqin", "D) Siqish"], c: 0 },
+            { q: "191. Median filtr?", o: ["A) Gauss", "B) Tuz va murch", "C) Sinus", "D) Past"], c: 1 },
+            { q: "192. Konvolyutsiya yadrosi?", o: ["A) Kernel", "B) Piksel", "C) Amplituda", "D) Signal"], c: 0 },
+            { q: "193. Gistogramma natijasi?", o: ["A) Kontrast", "B) Rang", "C) Hajm", "D) Piksel"], c: 0 },
+            { q: "194. Sobel operatori?", o: ["A) Chegara filtri", "B) Chastota", "C) Konteyner", "D) Gistogramma"], c: 0 },
+            { q: "195. Edge detection?", o: ["A) Rang", "B) Siqish", "C) Obyekt chegarasi", "D) Chastota"], c: 2 },
+            { q: "196. Sobel vazifasi?", o: ["A) Siqish", "B) Kontur", "C) Shovqin", "D) Rang"], c: 1 },
+            { q: "197. Sobel yo'nalishi?", o: ["A) 1", "B) 2", "C) 3", "D) 4"], c: 1 },
+            { q: "198. Canny bosqichlari?", o: ["A) 2", "B) 3", "C) 4", "D) 5"], c: 2 },
+            { q: "199. Canny non-maximum?", o: ["A) Yumshatadi", "B) Max bo'lmaganni o'chirish", "C) Shovqin", "D) Rang"], c: 1 },
+            { q: "200. Yuqori chastotali filtr?", o: ["A) Kontur kuchaytirish", "B) Shovqin", "C) Siqish", "D) Rang"], c: 0 },
+            { q: "201. Laplacian?", o: ["A) Birinchi", "B) Ikkinchi tartibli", "C) Median", "D) Kvantlash"], c: 1 },
+            { q: "202. Chegara algoritmi?", o: ["A) Hajm", "B) Obyekt ajratish", "C) Rang", "D) Siqish"], c: 1 },
+            { q: "203. Prewitt o‘xshash?", o: ["A) Sobel", "B) Canny", "C) Laplacian", "D) Fourier"], c: 0 },
+            { q: "204. Shakl ajratish?", o: ["A) Hajm", "B) Fonidan ajratish", "C) Chastota", "D) Siqish"], c: 1 },
+            { q: "205. Hough transform?", o: ["A) Chiziq/doira", "B) Rang", "C) Kvadrat", "D) Kontrast"], c: 0 },
+            { q: "206. Segmentatsiya?", o: ["A) Siqish", "B) Qismlarga ajratish", "C) Rang", "D) Piksel"], c: 1 },
+            { q: "207. Evolyutsiya usuli?", o: ["A) Rang", "B) Chegara o‘zgarishi", "C) Kvantlash", "D) Shovqin"], c: 1 },
+            { q: "208. Doira Hough parametri?", o: ["A) 2", "B) 3", "C) 4", "D) 1"], c: 1 },
+            { q: "209. Thresholding?", o: ["A) Guruhlarga ajratish", "B) Siqish", "C) Oshirish", "D) Normallash"], c: 0 },
+            { q: "210. Hough sohasi?", o: ["A) TV", "B) Avtomobil raqami", "C) Audio", "D) Hajm"], c: 1 },
+            { q: "211. Gauss filtri?", o: ["A) Past chastotali", "B) Yuqori", "C) Median", "D) Kalman"], c: 0 },
+            { q: "212. Sharpening?", o: ["A) Silliqlash", "B) Kontur kuchaytirish", "C) Shovqin", "D) Rang"], c: 1 },
+            { q: "213. Kernel?", o: ["A) Hajm", "B) Matritsa", "C) Piksel", "D) Gistogramma"], c: 1 },
+            { q: "214. Sobel vazifasi?", o: ["A) Chegara", "B) Rang", "C) Shovqin", "D) Fayl"], c: 0 },
+            { q: "215. Tasvir tiklash?", o: ["A) Qisqartirish", "B) Siqish", "C) Shikastlanganni tiklash", "D) Yangi"], c: 2 },
+            { q: "216. Tiklash jarayoni?", o: ["A) Dekompozitsiya", "B) Rekonstruksiya", "C) Segmentatsiya", "D) Diskretizatsiya"], c: 1 },
+            { q: "217. Inpainting?", o: ["A) Siqish", "B) Tiklash", "C) Filtrlash", "D) Formatlash"], c: 1 },
+            { q: "218. ML tiklash?", o: ["A) Klassifikator", "B) Neyron tarmoq", "C) Fourier", "D) Z"], c: 1 },
+            { q: "219. Shovqinli tasvirni tiklash?", o: ["A) Median", "B) Sobel", "C) FFT", "D) Laplace"], c: 0 },
+            { q: "220. CNN?", o: ["A) Matn", "B) Tasvir", "C) Nutq", "D) Chastota"], c: 1 },
+            { q: "221. Denoising?", o: ["A) Bo‘lish", "B) Shovqin kamaytirish", "C) Kuchaytirish", "D) Siqish"], c: 1 },
+            { q: "222. Yo‘qolgan qismni to‘ldirish?", o: ["A) Segmentatsiya", "B) Inpainting", "C) Klassifikatsiya", "D) Filtrlash"], c: 1 },
+            { q: "223. Super-resolution?", o: ["A) Kamaytiradi", "B) Yuqori aniqlik", "C) Qora-oq", "D) Rang"], c: 1 },
+            { q: "224. ML model?", o: ["A) Siqish", "B) Bashorat qilish", "C) Bo‘lish", "D) O‘zgartirish"], c: 1 },
+            { q: "225. Shovqin pasaytirish?", o: ["A) Wiener", "B) Sobel", "C) FFT", "D) JPEG"], c: 0 },
+            { q: "226. ML ma'lumot?", o: ["A) Toza/Shikastlangan juftlik", "B) Shikastlangan", "C) Grafik", "D) Kod"], c: 0 },
+            { q: "227. ML roli?", o: ["A) Siqish", "B) Aniqlash/Bashorat", "C) Ovoz", "D) Kesish"], c: 1 },
+            { q: "228. Speech Recognition?", o: ["A) Matn", "B) Neyron tarmoq", "C) FFT", "D) Filtr"], c: 1 },
+            { q: "229. Klassifikatsiya?", o: ["A) Kuchaytirish", "B) Turkumlash", "C) Tasodif", "D) Segmentlash"], c: 1 },
+            { q: "230. Bashorat usuli?", o: ["A) RNN", "B) FFT", "C) JPEG", "D) Sobel"], c: 0 },
+            { q: "231. Feature extraction?", o: ["A) Qisqartirish", "B) Muhim belgi ajratish", "C) Segmentlash", "D) Shovqin"], c: 1 },
+            { q: "232. AI aniqlash?", o: ["A) Filtr", "B) Naqsh tanib olish", "C) Kamaytirish", "D) Tezlik"], c: 1 },
+            { q: "233. MFCC?", o: ["A) Nutq", "B) Tasvir", "C) Matn", "D) Filtr"], c: 0 },
+            { q: "234. Object Detection?", o: ["A) Siqish", "B) Obyekt aniqlash", "C) Kuchaytirish", "D) Rang"], c: 1 },
+            { q: "235. Image Segmentation?", o: ["A) Siqish", "B) Qismlarga ajratish", "C) Burish", "D) Nusxalash"], c: 1 },
+            { q: "236. IFFT2?", o: ["A) Teskari Furye", "B) Oldinga", "C) Aylantirish", "D) Filtrlash"], c: 0 }
         ];
 
-        // --- Qolgan JavaScript kodi ---
-        // (Endi SELECTED_QUESTIONS va CORRECT_ANSWERS o'rniga ALL_QUESTIONS dan olingan ma'lumotlar ishlatiladi)
-        // ... (Qolgan kod avvalgi javobdagi kabi davom etadi) ...
+        // ---------------------------------------------------------
+        // 2. MANTIQ (LOGIC)
+        // ---------------------------------------------------------
 
         const urlParams = new URLSearchParams(window.location.search);
-        const requestedCount = parseInt(urlParams.get('count')) || 25;
-        const totalQuestions = Math.min(requestedCount, ALL_QUESTIONS.length);
-        const totalTimeMinutes = parseInt(urlParams.get('time')) || 0; 
-        
-        let currentTimeSeconds = totalTimeMinutes * 60;
-        let currentQuestionIndex = 0;
-        let questionStatuses = Array(totalQuestions).fill().map(() => [null, null]); 
-        let markedQuestions = Array(totalQuestions).fill(false); 
-        
-        const SELECTED_QUESTIONS = ALL_QUESTIONS.slice(0, totalQuestions); // Savollar bazadan tanlab olindi
+        const part = parseInt(urlParams.get('part')) || 1;
+        const questionsPerPart = 50;
 
-        // DOM elementlarini qayta o'rnatish
-        const timerDisplay = document.getElementById('timer');
-        const timerPanel = document.getElementById('timerPanel');
-        const totalQuestionsDisplay = document.getElementById('totalQuestionsDisplay');
-        const questionHeader = document.getElementById('questionHeader');
-        const questionContainer = document.getElementById('questionContainer');
-        const answersContainer = document.getElementById('answersContainer');
-        const navigationContainer = document.getElementById('questionNavigation');
+        const startIndex = (part - 1) * questionsPerPart;
+        const endIndex = Math.min(startIndex + questionsPerPart, ALL_QUESTIONS.length);
+        
+        const currentQuestions = ALL_QUESTIONS.slice(startIndex, endIndex);
+
+        let currIndex = 0;
+        let userAnswers = Array(currentQuestions.length).fill(null);
+        let marked = Array(currentQuestions.length).fill(false);
+        // Vaqt: 5-qism (36 talik) uchun 45 daqiqa, boshqalar uchun 60 daqiqa
+        let time = (currentQuestions.length < 50) ? 45 * 60 : 60 * 60;
+
+        // HTML Elementlar
+        const qText = document.getElementById('questionText');
+        const qCounter = document.getElementById('questionCounter');
+        const optDiv = document.getElementById('options');
+        const navGrid = document.getElementById('navGrid');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
-        const feedbackMessage = document.getElementById('feedbackMessage');
-        const progressBar = document.getElementById('progressBar');
         const markBtn = document.getElementById('markBtn');
-        const mobileNavToggle = document.getElementById('mobileNavToggle');
-        const mobileNavigationOverlay = document.getElementById('mobileNavigationOverlay');
-        const mobileQuestionNavigation = document.getElementById('mobileQuestionNavigation');
 
+        // Sarlavhani o'rnatish
+        document.getElementById('testTitle').innerText = `Test - ${part}-Qism`;
 
-        totalQuestionsDisplay.textContent = totalQuestions;
-
-        // --- MOBIL NAVIGATSIYA ---
-        function toggleMobileNav(show) {
-            if (show) {
-                mobileNavigationOverlay.classList.remove('hidden');
-            } else {
-                mobileNavigationOverlay.classList.add('hidden');
-            }
-        }
-        mobileNavToggle.addEventListener('click', () => toggleMobileNav(true));
-        
         // --- TAYMER ---
-        function startTimer() {
-            if (totalTimeMinutes === 0) {
-                timerPanel.classList.add('hidden');
-                return;
-            }
-            timerPanel.classList.remove('hidden');
+        const timerInterval = setInterval(() => {
+            time--;
+            const m = Math.floor(time / 60).toString().padStart(2, '0');
+            const s = (time % 60).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = `${m}:${s}`;
             
-            const timerInterval = setInterval(() => {
-                currentTimeSeconds--;
-                let minutes = Math.floor(currentTimeSeconds / 60);
-                let seconds = currentTimeSeconds % 60;
-                const timeString = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
-                document.getElementById('timer').textContent = timeString;
-                if (currentTimeSeconds <= 0) { clearInterval(timerInterval); endTest(); }
-            }, 1000);
-        }
-
-        // --- NAVIGATSIYANI YARATISH ---
-        function createNavigation() {
-            navigationContainer.innerHTML = '';
-            mobileQuestionNavigation.innerHTML = '';
-
-            for (let i = 0; i < totalQuestions; i++) {
-                const createButton = (container) => {
-                    const btn = document.createElement('button');
-                    btn.textContent = i + 1;
-                    btn.className = 'nav-btn w-full aspect-square text-sm rounded-lg bg-gray-200 hover:bg-gray-300 transition duration-100';
-                    btn.dataset.index = i;
-                    
-                    btn.addEventListener('click', () => { 
-                        showQuestion(i);
-                        if (container === mobileQuestionNavigation) toggleMobileNav(false); 
-                    });
-                    container.appendChild(btn);
-                };
-                
-                createButton(navigationContainer); 
-                createButton(mobileQuestionNavigation); 
-            }
-            updateNavigationColors();
-        }
-
-        // --- RANGINI YANGILASH ---
-        function updateNavigationColors() {
-            const allNavButtons = document.querySelectorAll('#questionNavigation .nav-btn, #mobileQuestionNavigation .nav-btn');
+            if (time <= 300) document.getElementById('timer').classList.replace('text-red-600', 'text-red-800'); // Rangni to'qroq qilish
             
-            allNavButtons.forEach((btn, index) => {
-                const status = questionStatuses[index]; 
-                const selectedAnswer = status ? status[0] : null;
-                const isCorrect = status ? status[1] : null;
-                
-                btn.classList.remove('bg-primary', 'bg-green-400', 'bg-red-400', 'bg-yellow-400', 'text-white', 'shadow-md', 'text-gray-900');
-                btn.classList.add('bg-gray-200', 'text-gray-800');
+            if (time <= 0) {
+                clearInterval(timerInterval);
+                finishTest(true);
+            }
+        }, 1000);
 
-                if (selectedAnswer !== null) {
-                    if (isCorrect) {
-                        btn.classList.add('bg-green-400', 'text-white');
+        // --- SAVOLNI YUKLASH ---
+        function loadQuestion(idx) {
+            currIndex = idx;
+            const q = currentQuestions[idx];
+            
+            qCounter.innerText = `SAVOL ${idx + 1} / ${currentQuestions.length}`;
+            qText.innerText = q.q;
+
+            // Belgilash tugmasi
+            if (marked[idx]) {
+                markBtn.innerHTML = '<i class="fas fa-bookmark text-yellow-500"></i> Olib tashlash';
+                markBtn.classList.add('text-yellow-600');
+            } else {
+                markBtn.innerHTML = '<i class="far fa-bookmark"></i> Belgilash';
+                markBtn.classList.remove('text-yellow-600');
+            }
+
+            // Variantlar
+            optDiv.innerHTML = '';
+            q.o.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl border-2 transition-all duration-200 flex items-center group relative overflow-hidden";
+                
+                if (userAnswers[idx]) {
+                    btn.disabled = true;
+                    if (i === q.c) {
+                        btn.className += " bg-green-50 border-green-500 text-green-800";
+                        btn.innerHTML = `<div class="w-6 h-6 rounded-full border-2 border-green-500 mr-3 flex items-center justify-center bg-green-500 text-white"><i class="fas fa-check text-xs"></i></div> <span class="font-medium">${opt}</span>`;
+                    } else if (i === userAnswers[idx].selected) {
+                        btn.className += " bg-red-50 border-red-500 text-red-800";
+                        btn.innerHTML = `<div class="w-6 h-6 rounded-full border-2 border-red-500 mr-3 flex items-center justify-center bg-red-500 text-white"><i class="fas fa-times text-xs"></i></div> <span class="font-medium">${opt}</span>`;
                     } else {
-                        btn.classList.add('bg-red-400', 'text-white');
+                        btn.className += " border-gray-100 opacity-50";
+                        btn.innerHTML = `<div class="w-6 h-6 rounded-full border-2 border-gray-300 mr-3"></div> <span>${opt}</span>`;
                     }
-                }
-                
-                if (markedQuestions[index]) {
-                    btn.classList.remove('bg-green-400', 'bg-red-400', 'bg-gray-200');
-                    btn.classList.add('bg-yellow-400', 'text-gray-900');
-                }
-
-                if (index === currentQuestionIndex) { 
-                    btn.classList.remove('bg-gray-200', 'bg-green-400', 'bg-red-400', 'bg-yellow-400');
-                    btn.classList.add('bg-primary', 'text-white', 'shadow-md'); 
-                }
-            });
-            
-            markBtn.textContent = markedQuestions[currentQuestionIndex] ? 'Belgilashni Olib Tashlash' : 'Savolni Belgilash';
-        }
-
-        // --- JAVOB UI NI YANGILASH ---
-        function updateAnswerOptions(selectedAnswer) {
-            answersContainer.innerHTML = '';
-            
-            const currentQuestion = SELECTED_QUESTIONS[currentQuestionIndex];
-            const options = ['A', 'B', 'C', 'D']; 
-            const isQuestionAnswered = selectedAnswer !== null;
-            const correctAnswer = currentQuestion.correct;
-            
-            options.forEach((option, idx) => {
-                const isChecked = selectedAnswer === option;
-                
-                const label = document.createElement('label');
-                label.className = `answer-label block p-4 border border-gray-300 rounded-lg transition duration-100 ${isChecked ? 'selected' : ''}`;
-                label.innerHTML = `<input type="radio" name="answer" value="${option}" class="mr-3 transform scale-125 hidden" ${isChecked ? 'checked' : ''} ${isQuestionAnswered ? 'disabled' : ''}>${currentQuestion.options[idx]}`;
-                
-                if (!isQuestionAnswered) {
-                    label.addEventListener('click', (e) => {
-                        handleAnswerSubmit(option, label);
-                    });
                 } else {
-                    if (option === correctAnswer) {
-                        label.classList.add('correct');
-                    } else if (isChecked) {
-                        label.classList.add('incorrect');
-                    } else {
-                        label.classList.remove('selected');
-                    }
+                    btn.className += " border-gray-200 hover:border-blue-400 hover:bg-blue-50 hover:shadow-sm";
+                    btn.innerHTML = `<div class="w-6 h-6 rounded-full border-2 border-gray-300 mr-3 flex items-center justify-center group-hover:border-blue-500 transition-colors"></div> <span class="text-gray-700 font-medium group-hover:text-blue-700">${opt}</span>`;
+                    btn.onclick = () => selectAnswer(i, idx);
                 }
-                answersContainer.appendChild(label);
+                optDiv.appendChild(btn);
+            });
+
+            // Navigatsiya
+            updateNav();
+            prevBtn.disabled = idx === 0;
+            
+            if (idx === currentQuestions.length - 1) {
+                nextBtn.innerText = "Yakunlash";
+                nextBtn.onclick = () => finishTest();
+                nextBtn.classList.replace('bg-blue-600', 'bg-green-600');
+                nextBtn.classList.replace('hover:bg-blue-700', 'hover:bg-green-700');
+            } else {
+                nextBtn.innerText = "Keyingi";
+                nextBtn.onclick = () => loadQuestion(currIndex + 1);
+                nextBtn.classList.replace('bg-green-600', 'bg-blue-600');
+                nextBtn.classList.replace('hover:bg-green-700', 'hover:bg-blue-700');
+            }
+        }
+
+        // --- JAVOB TANLASH ---
+        function selectAnswer(optIndex, qIndex) {
+            const correctIndex = currentQuestions[qIndex].c;
+            const isCorrect = optIndex === correctIndex;
+            
+            userAnswers[qIndex] = { selected: optIndex, correct: isCorrect };
+            loadQuestion(qIndex);
+        }
+
+        // --- NAVIGATSIYA ---
+        function updateNav() {
+            navGrid.innerHTML = '';
+            userAnswers.forEach((ans, i) => {
+                const btn = document.createElement('button');
+                btn.innerText = i + 1;
+                btn.className = "w-full aspect-square rounded-lg font-bold text-sm transition flex items-center justify-center border-2";
+                
+                if (i === currIndex) {
+                    btn.className += " border-blue-500 ring-2 ring-blue-200 z-10";
+                } else {
+                    btn.className += " border-transparent";
+                }
+
+                if (ans) {
+                    btn.className += ans.correct ? " bg-green-500 text-white border-green-600" : " bg-red-500 text-white border-red-600";
+                } else {
+                    btn.className += " bg-gray-100 text-gray-500 hover:bg-gray-200";
+                }
+
+                if (marked[i]) {
+                    btn.classList.add('ring-2', 'ring-yellow-400');
+                }
+
+                btn.onclick = () => loadQuestion(i);
+                navGrid.appendChild(btn);
             });
         }
+
+        prevBtn.onclick = () => { if (currIndex > 0) loadQuestion(currIndex - 1); };
         
-        // --- JAVOBNI TEKSHIRISH ---
-        function handleAnswerSubmit(selectedOption, clickedLabel) {
-            if (questionStatuses[currentQuestionIndex][0] !== null) return; 
+        markBtn.onclick = () => {
+            marked[currIndex] = !marked[currIndex];
+            loadQuestion(currIndex);
+        };
 
-            const correctAnswer = SELECTED_QUESTIONS[currentQuestionIndex].correct;
-            const isCorrect = selectedOption === correctAnswer;
-            questionStatuses[currentQuestionIndex] = [selectedOption, isCorrect];
+        window.finishTest = function(force = false) {
+            const answeredCount = userAnswers.filter(a => a !== null).length;
             
-            document.querySelectorAll('input[name="answer"]').forEach(input => input.disabled = true);
-
-            displayFeedback(selectedOption, isCorrect);
-            updateAnswerOptions(selectedOption);
-            
-            const answeredCount = questionStatuses.filter(q => q[0] !== null).length;
-            const progress = (answeredCount / totalQuestions) * 100;
-            progressBar.style.width = `${progress}%`;
-
-            if (currentQuestionIndex < totalQuestions - 1) {
-                nextBtn.classList.remove('hidden');
-            } else {
-                 nextBtn.classList.add('hidden');
+            if (!force && answeredCount < currentQuestions.length) {
+                if(!confirm(`Siz ${currentQuestions.length - answeredCount} ta savolga javob bermadingiz. Baribir yakunlaysizmi?`)) return;
+            } else if (!force) {
+                if(!confirm("Testni yakunlashni tasdiqlaysizmi?")) return;
             }
 
-            updateNavigationColors(); 
-        }
+            let correct = userAnswers.filter(a => a && a.correct).length;
+            let total = currentQuestions.length;
+            let percentage = Math.round((correct / total) * 100);
 
-        // --- XABAR KO'RSATISH ---
-        function displayFeedback(selectedOption, isCorrect) {
-             feedbackMessage.classList.remove('hidden', 'bg-red-200', 'text-red-800', 'bg-green-200', 'text-green-800');
-             
-             const correctAnswer = SELECTED_QUESTIONS[currentQuestionIndex].correct;
+            const history = JSON.parse(localStorage.getItem('testHistory')) || [];
+            history.push({
+                date: new Date().toLocaleString('uz-UZ'),
+                part: part,
+                correct: correct,
+                total: total,
+                scorePercentage: percentage
+            });
+            localStorage.setItem('testHistory', JSON.stringify(history));
 
-             if (isCorrect) {
-                feedbackMessage.textContent = "To'g'ri javob! +1 ball!";
-                feedbackMessage.classList.add('bg-green-200', 'text-green-800');
-             } else {
-                feedbackMessage.textContent = `Noto'g'ri javob. To'g'ri javob: ${correctAnswer}`;
-                feedbackMessage.classList.add('bg-red-200', 'text-red-800');
-             }
-        }
-        
-        // --- SAVOLNI O'ZGARTIRISH --- 
-        function showQuestion(index) {
-            currentQuestionIndex = index;
-            const currentQuestion = SELECTED_QUESTIONS[index];
-            
-            questionHeader.textContent = `Savol ${index + 1} / ${totalQuestions}`;
-            questionContainer.textContent = currentQuestion.question; 
-            
-            prevBtn.disabled = (index === 0);
-            
-            const [selectedAnswer] = questionStatuses[index];
+            alert(`Test yakunlandi!\n\nTo'g'ri javoblar: ${correct} ta\nNatija: ${percentage}%`);
+            window.location.href = 'dashboard.html';
+        };
 
-            if (selectedAnswer !== null && index < totalQuestions - 1) {
-                 nextBtn.classList.remove('hidden');
-            } else {
-                 nextBtn.classList.add('hidden');
-            }
+        // Boshlash
+        loadQuestion(0);
 
-            if (selectedAnswer !== null) {
-                 displayFeedback(selectedAnswer, questionStatuses[index][1]);
-            } else {
-                 feedbackMessage.classList.add('hidden');
-            }
-
-            updateAnswerOptions(selectedAnswer);
-            updateNavigationColors();
-        }
-
-        // --- BELGILASH FUNKSIYASI ---
-        markBtn.addEventListener('click', () => {
-            markedQuestions[currentQuestionIndex] = !markedQuestions[currentQuestionIndex];
-            updateNavigationColors();
-        });
-
-        // --- NAVIGATSIYA TUGMALARI ---
-        prevBtn.addEventListener('click', () => { if (currentQuestionIndex > 0) showQuestion(currentQuestionIndex - 1); });
-        nextBtn.addEventListener('click', () => { if (currentQuestionIndex < totalQuestions - 1) showQuestion(currentQuestionIndex + 1); });
-
-        // --- TESTNI YAKUNLASH ---
-        function endTest() {
-            const answeredCount = questionStatuses.filter(q => q[0] !== null).length;
-            const correctCount = questionStatuses.filter(q => q[1] === true).length;
-            const unanswered = totalQuestions - answeredCount;
-            
-            if (confirm(`Testni yakunlashga ishonchingiz komilmi? Siz ${unanswered} ta savolga javob bermadingiz.`)) {
-                
-                // NATIJALARNI SAQLASH
-                const testResult = {
-                    date: new Date().toISOString(),
-                    topic: "Umumiy Test",
-                    totalQuestions: totalQuestions,
-                    correctAnswers: correctCount,
-                    scorePercentage: (correctCount / totalQuestions) * 100
-                };
-                const testHistory = JSON.parse(localStorage.getItem('testHistory')) || [];
-                testHistory.push(testResult);
-                localStorage.setItem('testHistory', JSON.stringify(testHistory));
-
-                alert(`Test yakunlandi! To'g'ri javoblar: ${correctCount} / ${totalQuestions}.`);
-                window.location.href = 'dashboard.html';
-            }
-        }
-        window.endTest = endTest;
-
-        // --- INIT ---
-        function initializeTest() {
-            if (isNaN(totalQuestions) || totalQuestions <= 0 || totalQuestions > ALL_QUESTIONS.length) {
-                alert(`Noto'g'ri test formati tanlangan. Savollar bazada mavjud emas. Bazada ${ALL_QUESTIONS.length} ta savol mavjud.`);
-                window.location.href = 'dashboard.html';
-                return;
-            }
-            createNavigation();
-            showQuestion(0);
-            startTimer();
-        }
-        initializeTest();
     </script>
 </body>
 </html>

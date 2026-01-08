@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="uz">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -24,43 +25,83 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* Maxsus scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 3px; }
-        .dark ::-webkit-scrollbar-thumb { background: #4a5568; }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #4a5568;
+        }
 
         /* Javoblar ranglari */
-        .correct { background-color: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important; }
-        .incorrect { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
-        
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+            color: #065f46 !important;
+        }
+
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+
         /* Dark mode javoblar */
-        .dark .correct { background-color: #064e3b !important; border-color: #059669 !important; color: #d1fae5 !important; }
-        .dark .incorrect { background-color: #7f1d1d !important; border-color: #dc2626 !important; color: #fee2e2 !important; }
-        
+        .dark .correct {
+            background-color: #064e3b !important;
+            border-color: #059669 !important;
+            color: #d1fae5 !important;
+        }
+
+        .dark .incorrect {
+            background-color: #7f1d1d !important;
+            border-color: #dc2626 !important;
+            color: #fee2e2 !important;
+        }
+
         /* Hozirgi savol navigatsiyada */
-        .current-nav { border: 2px solid #3b82f6; transform: scale(1.1); z-index: 10; }
+        .current-nav {
+            border: 2px solid #3b82f6;
+            transform: scale(1.1);
+            z-index: 10;
+        }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex flex-col transition-colors duration-300">
+
+<body
+    class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 h-screen flex flex-col transition-colors duration-300">
 
     <!-- Header -->
     <header class="bg-white dark:bg-gray-800 shadow-md p-3 flex justify-between items-center z-20 sticky top-0">
         <div class="flex items-center gap-3">
-            <button onclick="location.href='dashboard.html'" class="text-gray-500 dark:text-gray-400 hover:text-blue-600">
+            <button onclick="location.href='dashboard.html'"
+                class="text-gray-500 dark:text-gray-400 hover:text-blue-600">
                 <i class="fas fa-arrow-left text-xl"></i>
             </button>
             <h1 class="text-lg font-bold tracking-tight" id="testTitle">Test</h1>
         </div>
-        
+
         <div class="flex items-center gap-3">
             <!-- Tungi rejim tugmasi -->
-            <button id="themeToggle" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-yellow-500 dark:text-yellow-300 transition">
+            <button id="themeToggle"
+                class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-yellow-500 dark:text-yellow-300 transition">
                 <i class="fas fa-sun"></i>
             </button>
 
-            <div class="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-3 py-1.5 rounded-lg font-bold font-mono border border-red-100 dark:border-red-900/50" id="timer">00:00</div>
-            
-            <button id="mobileNavToggle" class="lg:hidden w-10 h-10 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center">
+            <div class="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-3 py-1.5 rounded-lg font-bold font-mono border border-red-100 dark:border-red-900/50"
+                id="timer">00:00</div>
+
+            <button id="mobileNavToggle"
+                class="lg:hidden w-10 h-10 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center">
                 <i class="fas fa-th"></i>
             </button>
         </div>
@@ -69,21 +110,25 @@
     <div class="flex flex-1 overflow-hidden relative">
         <!-- Chap: Savol (Asosiy) -->
         <main class="flex-1 p-4 overflow-y-auto pb-24">
-            <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
-                
+            <div
+                class="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+
                 <!-- Savol tepasi -->
                 <div class="flex justify-between items-center mb-6">
-                    <span class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full" id="questionCounter">SAVOL 1</span>
-                    <button id="markBtn" class="text-gray-400 hover:text-yellow-500 transition flex items-center gap-2 text-sm font-medium">
+                    <span
+                        class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full"
+                        id="questionCounter">SAVOL 1</span>
+                    <button id="markBtn"
+                        class="text-gray-400 hover:text-yellow-500 transition flex items-center gap-2 text-sm font-medium">
                         <i class="far fa-bookmark text-lg"></i> <span class="hidden sm:inline">Belgilash</span>
                     </button>
                 </div>
-                
+
                 <!-- Savol matni -->
                 <div class="mb-6">
                     <p id="questionText" class="text-lg sm:text-xl font-semibold leading-snug">Savol yuklanmoqda...</p>
                 </div>
-                
+
                 <!-- Variantlar -->
                 <div id="options" class="space-y-3">
                     <!-- JS orqali to'ldiriladi -->
@@ -93,27 +138,35 @@
         </main>
 
         <!-- Pastki navigatsiya (Mobil va Desktop uchun umumiy) -->
-        <div class="absolute bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 p-3 flex justify-between items-center z-10 lg:static lg:w-auto lg:border-t-0 lg:hidden">
-            <button id="prevBtn" class="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl font-medium disabled:opacity-50 flex-1 mr-2">Oldingi</button>
-            <button id="nextBtn" class="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium shadow-lg shadow-blue-200 dark:shadow-none flex-1 ml-2">Keyingi</button>
+        <div
+            class="absolute bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 p-3 flex justify-between items-center z-10 lg:static lg:w-auto lg:border-t-0 lg:hidden">
+            <button id="prevBtn"
+                class="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl font-medium disabled:opacity-50 flex-1 mr-2">Oldingi</button>
+            <button id="nextBtn"
+                class="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium shadow-lg shadow-blue-200 dark:shadow-none flex-1 ml-2">Keyingi</button>
         </div>
 
         <!-- O'ng: Navigatsiya (Desktop) -->
-        <aside class="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 p-6 overflow-y-auto hidden lg:block">
+        <aside
+            class="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 p-6 overflow-y-auto hidden lg:block">
             <h3 class="font-bold mb-6 flex items-center gap-2">
                 <i class="fas fa-th-large text-blue-500"></i> Savollar ro'yxati
             </h3>
             <div id="desktopNavGrid" class="grid grid-cols-5 gap-2"></div>
-            <button onclick="finishTest()" class="w-full mt-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition">Testni Yakunlash</button>
+            <button onclick="finishTest()"
+                class="w-full mt-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition">Testni
+                Yakunlash</button>
         </aside>
     </div>
 
     <!-- Mobil Navigatsiya Modali -->
     <div id="mobileNavOverlay" class="fixed inset-0 bg-black/50 z-40 hidden backdrop-blur-sm transition-opacity"></div>
-    <div id="mobileNavDrawer" class="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 rounded-t-3xl shadow-2xl z-50 transform translate-y-full transition-transform duration-300 max-h-[80vh] flex flex-col">
+    <div id="mobileNavDrawer"
+        class="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 rounded-t-3xl shadow-2xl z-50 transform translate-y-full transition-transform duration-300 max-h-[80vh] flex flex-col">
         <div class="p-4 border-b dark:border-gray-700 flex justify-between items-center">
             <h3 class="font-bold text-lg">Savollar ro'yxati</h3>
-            <button id="closeMobileNav" class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+            <button id="closeMobileNav"
+                class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -121,7 +174,9 @@
             <div id="mobileNavGrid" class="grid grid-cols-5 gap-3"></div>
         </div>
         <div class="p-4 border-t dark:border-gray-700">
-            <button onclick="finishTest()" class="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold">Testni Yakunlash</button>
+            <button onclick="finishTest()"
+                class="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold">Testni
+                Yakunlash</button>
         </div>
     </div>
 
@@ -170,7 +225,7 @@
             { q: "38. Quvvat spektridan nima aniqlanadi?", o: ["A) Signal kuchi qaysi chastotada ko‘pligi", "B) Faza", "C) Hajm", "D) Uzunlik"], c: 0 },
             { q: "39. DCT va DFT farqi?", o: ["A) DCT faqat kosinus", "B) DFT faqat sinus", "C) Farqi yo'q", "D) DCT raqamli emas"], c: 0 },
             { q: "40. Davriy signal ta'rifi?", o: ["A) Qaytarilmaydigan", "B) Takrorlanuvchi", "C) Vaqtga bog‘liq", "D) Shovqinsiz"], c: 1 },
-            { q: "41. DCT formulasi?", o: ["A) Kosinuslar yig'indisi", "B) Sinuslar", "C) Eksponenta", "D) Integral"], c: 0 }, 
+            { q: "41. DCT formulasi?", o: ["A) Kosinuslar yig'indisi", "B) Sinuslar", "C) Eksponenta", "D) Integral"], c: 0 },
             { q: "42. Davriy signal uchun asosiy parametr?", o: ["A) Amplituda", "B) Davr (T)", "C) Faza", "D) Shovqin"], c: 1 },
             // Formulali savollar o'rniga nazariy
             { q: "44. DCT-1 xususiyati?", o: ["A) Juft simmetriya", "B) Toq simmetriya", "C) Davriylik", "D) Chiziqlilik"], c: 0 },
@@ -373,7 +428,7 @@
             RAW_QUESTIONS.push({
                 q: `${i}-savol. Signal va tasvirlarga ishlov berish fanidan nazariy savol.`,
                 o: ["Variant A (Xato)", "Variant B (To'g'ri)", "Variant C (Xato)", "Variant D (Xato)"],
-                c: 1 
+                c: 1
             });
         }
 
@@ -404,13 +459,13 @@
         const currentQuestions = slicedQuestions.map(item => {
             // Variantlarni indekslari bilan birga saqlaymiz
             let optionsWithIndex = item.o.map((opt, index) => ({ text: opt, originalIndex: index }));
-            
+
             // Variantlarni aralashtiramiz
             shuffleArray(optionsWithIndex);
-            
+
             // Yangi to'g'ri javob indeksini topamiz
             let newCorrectIndex = optionsWithIndex.findIndex(opt => opt.originalIndex === item.c);
-            
+
             return {
                 q: item.q,
                 o: optionsWithIndex.map(opt => opt.text), // Faqat matnni qaytaramiz
@@ -435,7 +490,7 @@
         const nextBtn = document.getElementById('nextBtn');
         const markBtn = document.getElementById('markBtn');
         const themeToggle = document.getElementById('themeToggle');
-        
+
         // Sarlavha
         document.getElementById('testTitle').innerText = `${part}-Qism`;
 
@@ -443,7 +498,7 @@
         function toggleTheme() {
             const html = document.documentElement;
             const icon = themeToggle.querySelector('i');
-            
+
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
                 localStorage.setItem('theme', 'light');
@@ -454,7 +509,7 @@
                 icon.classList.replace('fa-sun', 'fa-moon');
             }
         }
-        
+
         // Yuklanganda tekshirish
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark');
@@ -495,9 +550,9 @@
         function loadQuestion(idx) {
             currIndex = idx;
             const q = currentQuestions[idx];
-            
+
             qCounter.innerText = `SAVOL ${idx + 1} / ${currentQuestions.length}`;
-            qText.innerText = q.q;
+            qText.innerText = `${idx + 1}. ${q.q.replace(/^\d+[\.\)]\s*/, '')}`;
 
             // Belgilash tugmasi
             if (marked[idx]) {
@@ -513,7 +568,7 @@
             q.o.forEach((opt, i) => {
                 const btn = document.createElement('button');
                 btn.className = "w-full text-left p-4 rounded-xl border-2 dark:border-gray-600 transition-all duration-200 flex items-center group relative overflow-hidden bg-white dark:bg-gray-700 dark:text-gray-200";
-                
+
                 if (userAnswers[idx]) {
                     btn.disabled = true;
                     if (i === q.c) {
@@ -536,7 +591,7 @@
 
             updateNav();
             prevBtn.disabled = idx === 0;
-            
+
             // Tugma matnini o'zgartirish
             if (idx === currentQuestions.length - 1) {
                 nextBtn.innerText = "Yakunlash";
@@ -559,14 +614,14 @@
         // --- NAVIGATSIYA ---
         function updateNav() {
             const grids = [document.getElementById('desktopNavGrid'), document.getElementById('mobileNavGrid')];
-            
+
             grids.forEach(grid => {
                 grid.innerHTML = '';
                 userAnswers.forEach((ans, i) => {
                     const btn = document.createElement('button');
                     btn.innerText = i + 1;
                     btn.className = "w-full aspect-square rounded-lg font-bold text-sm transition flex items-center justify-center border-2 dark:border-gray-600";
-                    
+
                     if (i === currIndex) btn.classList.add('current-nav', 'border-blue-500', 'dark:border-blue-400');
 
                     if (ans) {
@@ -589,12 +644,12 @@
         prevBtn.onclick = () => { if (currIndex > 0) loadQuestion(currIndex - 1); };
         markBtn.onclick = () => { marked[currIndex] = !marked[currIndex]; loadQuestion(currIndex); };
 
-        window.finishTest = function(force = false) {
+        window.finishTest = function (force = false) {
             const answeredCount = userAnswers.filter(a => a !== null).length;
             if (!force && answeredCount < currentQuestions.length) {
-                if(!confirm(`Siz ${currentQuestions.length - answeredCount} ta savolga javob bermadingiz. Baribir yakunlaysizmi?`)) return;
+                if (!confirm(`Siz ${currentQuestions.length - answeredCount} ta savolga javob bermadingiz. Baribir yakunlaysizmi?`)) return;
             } else if (!force) {
-                if(!confirm("Testni yakunlashni tasdiqlaysizmi?")) return;
+                if (!confirm("Testni yakunlashni tasdiqlaysizmi?")) return;
             }
 
             let correct = userAnswers.filter(a => a && a.correct).length;
@@ -620,4 +675,5 @@
 
     </script>
 </body>
+
 </html>
